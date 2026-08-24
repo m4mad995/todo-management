@@ -1,0 +1,548 @@
+<script setup>
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { Head, usePage, Link, router } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
+import { Doughnut, Bar, Line } from 'vue-chartjs';
+import {
+    Chart as ChartJS,
+    ArcElement,
+    Tooltip,
+    Legend,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    LineElement,
+    PointElement,
+    Filler,
+} from 'chart.js';
+
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Filler);
+
+const props = defineProps({
+    stats: Object,
+    urgentTasks: { type: Array, default: () => [] },
+    todayRoutines: { type: Array, default: () => [] },
+    completedRoutinesToday: { type: Array, default: () => [] },
+    upcomingAgendas: { type: Array, default: () => [] },
+    completedTasksToday: { type: Array, default: () => [] },
+    weeklyHistory: { type: Array, default: () => [] },
+    isFirstTime: { type: Boolean, default: false },
+});
+
+const page = usePage();
+const userName = computed(() => {
+    const name = page.props.auth?.user?.name || 'User';
+    return name.split(' ')[0];
+});
+
+const greeting = computed(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Selamat pagi';
+    if (hour < 18) return 'Selamat siang';
+    return 'Selamat malam';
+});
+
+const dayLabels = [
+    { label: 'Sen', val: 1 },
+    { label: 'Sel', val: 2 },
+    { label: 'Rab', val: 3 },
+    { label: 'Kam', val: 4 },
+    { label: 'Jum', val: 5 },
+    { label: 'Sab', val: 6 },
+    { label: 'Min', val: 0 },
+];
+
+const routineFreqLabel = (routine) => {
+    if (routine.is_everyday) return 'Setiap Hari';
+    if (routine.days_of_week && routine.days_of_week.length > 0) {
+        const dayNames = { 0: 'Min', 1: 'Sen', 2: 'Sel', 3: 'Rab', 4: 'Kam', 5: 'Jum', 6: 'Sab' };
+        return routine.days_of_week.map(d => dayNames[d]).join(', ');
+    }
+    return 'Sekali';
+};
+
+// === Doughnut: Matrix ===
+const matrixColors = {
+    do_first: '#EF4444',
+    schedule: '#3B82F6',
+    delegate: '#F59E0B',
+    drop: '#9CA3AF',
+};
+
+const doughnutData = computed(() => {
+    const m = props.stats.completedByMatrix;
+    return {
+        labels: ['Do First', 'Do Next', 'Hand Off', 'Ignore'],
+        datasets: [{
+            data: [m.do_first, m.schedule, m.delegate, m.drop],
+            backgroundColor: [matrixColors.do_first, matrixColors.schedule, matrixColors.delegate, matrixColors.drop],
+            borderWidth: 0,
+            hoverOffset: 4,
+        }],
+    };
+});
+
+const doughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '70%',
+    plugins: {
+        legend: { display: false },
+        tooltip: { backgroundColor: '#1F2937', titleFont: { size: 13, weight: '600' }, bodyFont: { size: 12 }, padding: 10, cornerRadius: 8, displayColors: true, boxPadding: 4 },
+    },
+};
+
+const matrixLabel = { do_first: 'Do First', schedule: 'Do Next', delegate: 'Hand Off', drop: 'Ignore' };
+
+// Matrix badge class
+const toggleRoutine = (routineId) => {
+    router.patch(`/routines/${routineId}`, { is_completed_today: true }, { preserveScroll: true });
+};
+
+// Matrix badge class
+const matrixBadgeClass = {
+    do_first: 'bg-red-50 text-red-600',
+    schedule: 'bg-blue-50 text-blue-600',
+    delegate: 'bg-amber-50 text-amber-600',
+    drop: 'bg-gray-100 text-gray-500',
+};
+
+// === Bar: 6 Bulan ===
+const barMonthData = computed(() => {
+    const data = props.stats.completedByMonth;
+    if (data.length === 0) {
+        return { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'], datasets: [{ data: [0, 0, 0, 0, 0, 0], backgroundColor: '#3B82F6', borderRadius: 6, barThickness: 18 }] };
+    }
+    return { labels: data.map(d => d.month), datasets: [{ data: data.map(d => d.count), backgroundColor: '#3B82F6', borderRadius: 6, barThickness: 18 }] };
+});
+
+const barOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1F2937', titleFont: { size: 13, weight: '600' }, bodyFont: { size: 12 }, padding: 10, cornerRadius: 8 } },
+    scales: {
+        x: { grid: { display: false }, border: { display: false }, ticks: { color: '#9CA3AF', font: { size: 11 } } },
+        y: { beginAtZero: true, grid: { color: '#F3F4F6' }, border: { display: false }, ticks: { color: '#9CA3AF', font: { size: 11 }, stepSize: 1 } },
+    },
+};
+const matrixName = {
+    do_first: 'Do First',
+    schedule: 'Do Next',
+    delegate: 'Hand Off',
+    drop: 'Ignore',
+};
+
+// === Chart: Tren 7 Hari (Line/Area) ===
+const trendData = computed(() => {
+    const data = props.weeklyHistory;
+    if (!data || data.length === 0) {
+        return {
+            labels: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
+            datasets: [{
+                data: [0, 0, 0, 0, 0, 0, 0],
+                borderColor: '#3B82F6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#3B82F6',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+            }],
+        };
+    }
+    const todayStr = new Date().toISOString().split('T')[0];
+    return {
+        labels: data.map(d => {
+            const dayNames = { Sun: 'Min', Mon: 'Sen', Tue: 'Sel', Wed: 'Rab', Thu: 'Kam', Fri: 'Jum', Sat: 'Sab' };
+            return dayNames[d.day_name] || d.day_name;
+        }),
+        datasets: [{
+            data: data.map(d => d.total_completed),
+            borderColor: '#3B82F6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4,
+            pointBackgroundColor: data.map(d => d.date === todayStr ? '#8B5CF6' : '#3B82F6'),
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+        }],
+    };
+});
+
+const trendOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: { display: false },
+        tooltip: {
+            backgroundColor: '#1F2937',
+            titleFont: { size: 13, weight: '600' },
+            bodyFont: { size: 12 },
+            padding: 10,
+            cornerRadius: 8,
+            callbacks: {
+                afterLabel: function(context) {
+                    const day = props.weeklyHistory[context.dataIndex];
+                    if (!day) return '';
+                    return `${day.tasks_completed} task + ${day.routines_completed} routine`;
+                },
+            },
+        },
+    },
+    scales: {
+        x: { grid: { display: false }, border: { display: false }, ticks: { color: '#9CA3AF', font: { size: 11 } } },
+        y: { beginAtZero: true, grid: { color: '#F3F4F6' }, border: { display: false }, ticks: { color: '#9CA3AF', font: { size: 11 }, stepSize: 1 } },
+    },
+};
+
+// === Chart: Task Selesai vs Belum per Matrix (Stacked Horizontal Bar) ===
+const matrixBarData = computed(() => {
+    const data = props.stats.matrixStatus;
+    if (!data || data.length === 0) {
+        return { labels: ['Do First', 'Do Next', 'Hand Off'], datasets: [
+            { label: 'Selesai', data: [0, 0, 0], backgroundColor: '#10B981', borderRadius: 4, barThickness: 20 },
+            { label: 'Belum', data: [0, 0, 0], backgroundColor: '#E5E7EB', borderRadius: 4, barThickness: 20 },
+        ] };
+    }
+    return {
+        labels: data.map(d => d.label),
+        datasets: [
+            { label: 'Selesai', data: data.map(d => d.completed), backgroundColor: '#10B981', borderRadius: 4, barThickness: 20 },
+            { label: 'Belum', data: data.map(d => d.pending), backgroundColor: '#E5E7EB', borderRadius: 4, barThickness: 20 },
+        ],
+    };
+});
+
+const matrixBarOptions = {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: {
+            display: true,
+            position: 'bottom',
+            labels: { usePointStyle: true, pointStyle: 'circle', padding: 12, font: { size: 11 } },
+        },
+        tooltip: {
+            backgroundColor: '#1F2937',
+            titleFont: { size: 13, weight: '600' },
+            bodyFont: { size: 12 },
+            padding: 10,
+            cornerRadius: 8,
+            callbacks: {
+                label: function(context) {
+                    const item = props.stats.matrixStatus[context.dataIndex];
+                    if (!item) return context.dataset.label + ': ' + context.raw;
+                    const pct = item.total > 0 ? Math.round((context.raw / item.total) * 100) : 0;
+                    return context.dataset.label + ': ' + context.raw + ' (' + pct + '%)';
+                },
+            },
+        },
+    },
+    scales: {
+        x: { stacked: true, beginAtZero: true, grid: { color: '#F3F4F6' }, border: { display: false }, ticks: { color: '#9CA3AF', font: { size: 11 }, stepSize: 1 } },
+        y: { stacked: true, grid: { display: false }, border: { display: false }, ticks: { color: '#374151', font: { size: 12, weight: '600' } } },
+    },
+};
+</script>
+
+<template>
+    <Head title="Dashboard" />
+
+    <AuthenticatedLayout>
+        <!-- Greeting -->
+        <div class="mb-4">
+            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">
+                {{ greeting }}, {{ userName }}.
+            </h1>
+            <p class="text-gray-500 mt-0.5 text-[15px]">
+                Ini ringkasan produktivitas kamu.
+            </p>
+        </div>
+
+        <!-- Onboarding: Welcome Card (first-time user) -->
+        <div v-if="isFirstTime" class="card p-6 mb-4 text-center">
+            <h2 class="text-lg font-bold text-gray-900 mb-1">Selamat datang!</h2>
+            <p class="text-[14px] text-gray-500 mb-4">Mulai kelola produktivitasmu dengan langkah pertama ini.</p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-2">
+                <Link href="/focus" class="btn-primary btn-sm">
+                    + Tambah Task
+                </Link>
+                <Link href="/routines" class="btn-primary btn-sm !bg-blue-500 hover:!bg-blue-600">
+                    + Buat Rutinitas
+                </Link>
+                <Link href="/agenda" class="btn-primary btn-sm !bg-amber-500 hover:!bg-amber-600">
+                    + Tambah Agenda
+                </Link>
+            </div>
+        </div>
+
+        <!-- Bento Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+
+            <!-- Stats: Selesai Hari Ini -->
+            <div class="card p-4 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-btn bg-emerald-50 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-[11px] text-gray-500 font-semibold uppercase tracking-wider">Selesai</p>
+                    <p class="text-2xl font-bold text-gray-900 leading-tight">{{ stats.completedToday }}</p>
+                    <p class="text-[11px] text-gray-400">{{ stats.totalToday }} total hari ini</p>
+                </div>
+            </div>
+
+            <!-- Stats: Rate -->
+            <div class="card p-4 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-btn bg-blue-50 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-[11px] text-gray-500 font-semibold uppercase tracking-wider">Rate</p>
+                    <p class="text-2xl font-bold text-gray-900 leading-tight">{{ stats.completionRate }}%</p>
+                    <p class="text-[11px] text-gray-400">semua task</p>
+                </div>
+            </div>
+
+            <!-- Stats: Streak -->
+            <div class="card p-4 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-btn bg-amber-50 flex items-center justify-center shrink-0">
+                    <span class="text-lg">🔥</span>
+                </div>
+                <div>
+                    <p class="text-[11px] text-gray-500 font-semibold uppercase tracking-wider">Streak</p>
+                    <p class="text-2xl font-bold text-gray-900 leading-tight">{{ stats.currentStreak }} <span class="text-sm font-medium text-gray-500">hari</span></p>
+                    <p class="text-[11px] text-gray-400">task + rutin</p>
+                </div>
+            </div>
+
+            <!-- Perlu Dikerjakan (full width) -->
+            <div class="card border-l-[3px] border-l-red-500 p-4 sm:col-span-2 lg:col-span-3">
+                <div class="flex items-center gap-2.5 mb-2.5">
+                    <div class="w-6 h-6 rounded-md bg-red-50 flex items-center justify-center shrink-0">
+                        <svg class="w-3.5 h-3.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-[15px] font-bold text-gray-800">Perlu Dikerjakan</h3>
+                    <span class="badge-red text-[11px] ml-auto">{{ urgentTasks.length }} Do First</span>
+                </div>
+                <div v-if="urgentTasks.length > 0" class="space-y-1">
+                    <Link
+                        v-for="task in urgentTasks"
+                        :key="task.id"
+                        href="/focus"
+                        class="flex items-center justify-between px-3 py-2 rounded-btn hover:bg-red-50/40 transition group"
+                    >
+                        <span class="text-[14px] text-gray-800 truncate">{{ task.title }}</span>
+                        <span class="shrink-0 text-[12px] font-semibold text-red-400 group-hover:text-red-500 transition">
+                            Fokus →
+                        </span>
+                    </Link>
+                </div>
+                <div v-else class="text-center py-4">
+                    <p class="text-[13px] text-gray-400">Tidak ada task mendesak. Bagus!</p>
+                </div>
+            </div>
+
+            <!-- Rutinitas Hari Ini -->
+            <div class="card border-l-[3px] border-l-blue-500 p-4">
+                <div class="flex items-center gap-2.5 mb-2.5">
+                    <div class="w-6 h-6 rounded-md bg-blue-50 flex items-center justify-center shrink-0">
+                        <svg class="w-3.5 h-3.5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                    </div>
+                    <h3 class="text-[15px] font-bold text-gray-800">Rutinitas Hari Ini</h3>
+                    <span class="text-[11px] text-blue-500 font-semibold ml-auto">{{ todayRoutines.length }} aktif</span>
+                </div>
+                <div v-if="todayRoutines.length > 0" class="space-y-1">
+                    <div
+                        v-for="routine in todayRoutines"
+                        :key="routine.id"
+                        class="flex items-center gap-2.5 px-2.5 py-2 rounded-btn hover:bg-blue-50/40 transition group"
+                    >
+                        <button
+                            @click="toggleRoutine(routine.id)"
+                            class="w-5 h-5 rounded-md border-2 border-gray-300 flex items-center justify-center shrink-0 hover:border-blue-400 transition text-transparent hover:text-blue-400"
+                        >
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </button>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-[13px] text-gray-800 truncate">{{ routine.title }}</p>
+                            <div class="flex items-center gap-1.5 mt-1">
+                                <span v-if="routine.is_everyday" class="text-[11px] font-semibold text-emerald-600">Setiap Hari</span>
+                                <div v-else-if="routine.days_of_week && routine.days_of_week.length > 0" class="flex gap-0.5">
+                                    <span
+                                        v-for="d in dayLabels"
+                                        :key="d.val"
+                                        :class="[
+                                            'w-5 h-5 rounded-md flex items-center justify-center font-bold text-[10px]',
+                                            routine.days_of_week.includes(d.val) ? 'bg-blue-100 text-blue-700' : 'text-gray-300'
+                                        ]"
+                                    >
+                                        {{ d.label[0] }}
+                                    </span>
+                                </div>
+                                <span v-else class="text-[11px] text-gray-400">Sekali</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div v-else class="text-center py-4">
+                    <p class="text-[13px] text-gray-400">Tidak ada rutinitas hari ini.</p>
+                </div>
+                <Link href="/routines" class="block text-center mt-2 text-[12px] font-medium text-gray-400 hover:text-gray-600 transition">
+                    Lihat di Rutinitas →
+                </Link>
+            </div>
+
+            <!-- Agenda Mendatang -->
+            <div class="card border-l-[3px] border-l-amber-500 p-4 sm:col-span-2">
+                <div class="flex items-center gap-2.5 mb-2.5">
+                    <div class="w-6 h-6 rounded-md bg-amber-50 flex items-center justify-center shrink-0">
+                        <svg class="w-3.5 h-3.5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-[15px] font-bold text-gray-800">Agenda Mendatang</h3>
+                </div>
+                <div v-if="upcomingAgendas.length > 0" class="space-y-1">
+                    <div
+                        v-for="agenda in upcomingAgendas"
+                        :key="agenda.id"
+                        class="flex items-center gap-3 px-3 py-2 rounded-btn hover:bg-amber-50/40 transition"
+                    >
+                        <span
+                            :class="[
+                                'text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0',
+                                agenda.is_today ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600'
+                            ]"
+                        >
+                            {{ agenda.date_label }}
+                        </span>
+                        <span v-if="agenda.event_time" class="text-[12px] text-amber-600 font-semibold shrink-0">
+                            {{ agenda.event_time.substring(0, 5) }}
+                        </span>
+                        <span class="text-[13px] text-gray-800 truncate">{{ agenda.title }}</span>
+                    </div>
+                </div>
+                <div v-else class="text-center py-4">
+                    <p class="text-[13px] text-gray-400">Tidak ada agenda mendatang.</p>
+                </div>
+            </div>
+
+            <!-- Chart: Tren 7 Hari (Line/Area) -->
+            <div class="card border-l-[3px] border-l-blue-500 p-4 sm:col-span-2">
+                <div class="flex items-center gap-2.5 mb-3">
+                    <div class="w-6 h-6 rounded-md bg-blue-50 flex items-center justify-center shrink-0">
+                        <svg class="w-3.5 h-3.5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                    </div>
+                    <h3 class="text-[15px] font-bold text-gray-800">Tren 7 Hari</h3>
+                </div>
+                <div class="h-44">
+                    <Line :data="trendData" :options="trendOptions" />
+                </div>
+            </div>
+
+            <!-- Chart: Selesai vs Belum per Matrix (Stacked Horizontal Bar) -->
+            <div class="card border-l-[3px] border-l-emerald-500 p-4">
+                <div class="flex items-center gap-2.5 mb-3">
+                    <div class="w-6 h-6 rounded-md bg-emerald-50 flex items-center justify-center shrink-0">
+                        <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-[15px] font-bold text-gray-800">Selesai vs Belum</h3>
+                </div>
+                <div class="h-36">
+                    <Bar :data="matrixBarData" :options="matrixBarOptions" />
+                </div>
+            </div>
+
+            <!-- Donut Chart: Kuadran (full width) -->
+            <div class="card border-l-[3px] border-l-gray-300 p-4 lg:col-span-1">
+                <div class="flex items-center gap-2.5 mb-3">
+                    <div class="w-6 h-6 rounded-md bg-gray-100 flex items-center justify-center shrink-0">
+                        <svg class="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-[15px] font-bold text-gray-800">Berdasarkan Kuadran</h3>
+                </div>
+                <div class="flex flex-col sm:flex-row items-center gap-5">
+                    <div class="w-40 h-40 shrink-0 relative">
+                        <Doughnut :data="doughnutData" :options="doughnutOptions" />
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-2xl font-bold text-gray-900">{{ stats.totalCompleted }}</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <div
+                            v-for="(count, key) in stats.completedByMatrix"
+                            :key="key"
+                            class="flex items-center gap-2.5 text-[13px]"
+                        >
+                            <span class="w-2.5 h-2.5 rounded-full shrink-0" :style="{ backgroundColor: matrixColors[key] }"></span>
+                            <span class="text-gray-600 w-16">{{ matrixLabel[key] }}</span>
+                            <span class="font-bold text-gray-900">{{ count }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bar Chart: 6 Bulan -->
+            <div class="card border-l-[3px] border-l-gray-300 p-4 sm:col-span-1 lg:col-span-2">
+                <h3 class="text-[15px] font-bold text-gray-800 mb-2.5">6 Bulan Terakhir</h3>
+                <div class="h-36">
+                    <Bar :data="barMonthData" :options="barOptions" />
+                </div>
+            </div>
+
+            <!-- Recent Completed (full width) -->
+            <div class="card border-l-[3px] border-l-emerald-500 p-4 sm:col-span-2 lg:col-span-3">
+                <div class="flex items-center gap-2.5 mb-2.5">
+                    <div class="w-6 h-6 rounded-md bg-emerald-50 flex items-center justify-center shrink-0">
+                        <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-[15px] font-bold text-gray-800">Task Terakhir Selesai</h3>
+                </div>
+                <div v-if="stats.recentCompleted.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
+                    <div
+                        v-for="task in stats.recentCompleted"
+                        :key="task.id"
+                        class="flex items-center gap-2.5 px-2.5 py-2 rounded-btn hover:bg-emerald-50/40 transition"
+                    >
+                        <div class="w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
+                            <svg class="w-3 h-3 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <span class="text-[13px] text-gray-700 truncate flex-1">{{ task.title }}</span>
+                        <span :class="['text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0', matrixBadgeClass[task.matrix] || 'bg-gray-100 text-gray-500']">
+                            {{ matrixName[task.matrix] || task.matrix }}
+                        </span>
+                        <span class="text-[11px] text-gray-400 shrink-0">{{ task.completed_diff }}</span>
+                    </div>
+                </div>
+                <div v-else class="text-center py-4">
+                    <p class="text-[13px] text-gray-400 italic">Belum ada task yang selesai.</p>
+                </div>
+            </div>
+
+        </div>
+    </AuthenticatedLayout>
+</template>
