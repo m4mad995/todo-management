@@ -53,14 +53,7 @@ const subTasksByParent = computed(() => {
 
 // Orphan sub-tasks (parent task not in Hari Ini)
 const orphanSubTasks = computed(() =>
-    subTaskTargets.value.filter(t =>
-        !t.targetable?.task_id ||
-        !activeTargets.value.some(p =>
-            p.targetable_type?.includes('Task') &&
-            !p.targetable_type?.includes('SubTask') &&
-            p.targetable_id === t.targetable.task_id
-        )
-    )
+    subTaskTargets.value.filter(t => !t.is_nested)
 );
 
 const todayDate = computed(() => {

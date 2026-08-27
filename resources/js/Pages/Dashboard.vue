@@ -280,31 +280,34 @@ const matrixBarOptions = {
         </div>
 
         <!-- Bento Grid -->
-        <div class="grid grid-cols-3 gap-2">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
 
-            <!-- Stats: Selesai Hari Ini -->
-            <div class="rounded-btn border border-emerald-200 bg-emerald-50/50 p-2 sm:p-2.5 flex flex-col items-center text-center gap-0.5">
-                <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-700">Selesai</p>
-                <p class="text-lg sm:text-xl font-bold text-gray-900 leading-tight">{{ stats.completedToday }}</p>
-                <p class="text-[9px] sm:text-[10px] text-emerald-600/60 truncate max-w-full">{{ stats.totalToday }} total</p>
-            </div>
+            <!-- Stats Row -->
+            <div class="md:col-span-2 lg:col-span-3 grid grid-cols-3 gap-2">
+                <!-- Stats: Selesai Hari Ini -->
+                <div class="rounded-btn border border-emerald-200 bg-emerald-50/50 p-2 sm:p-2.5 flex flex-col items-center text-center gap-0.5">
+                    <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-700">Selesai</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900 leading-tight">{{ stats.completedToday }}</p>
+                    <p class="text-[9px] sm:text-[10px] text-emerald-600/60 truncate max-w-full">{{ stats.totalToday }} total</p>
+                </div>
 
-            <!-- Stats: Rate -->
-            <div class="rounded-btn border border-indigo-200 bg-indigo-50/50 p-2 sm:p-2.5 flex flex-col items-center text-center gap-0.5">
-                <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-indigo-700">Rate</p>
-                <p class="text-lg sm:text-xl font-bold text-gray-900 leading-tight">{{ stats.completionRate }}%</p>
-                <p class="text-[9px] sm:text-[10px] text-indigo-600/60 truncate max-w-full">semua task</p>
-            </div>
+                <!-- Stats: Rate -->
+                <div class="rounded-btn border border-indigo-200 bg-indigo-50/50 p-2 sm:p-2.5 flex flex-col items-center text-center gap-0.5">
+                    <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-indigo-700">Rate</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900 leading-tight">{{ stats.completionRate }}%</p>
+                    <p class="text-[9px] sm:text-[10px] text-indigo-600/60 truncate max-w-full">semua task</p>
+                </div>
 
-            <!-- Stats: Streak -->
-            <div class="rounded-btn border border-amber-200 bg-amber-50/50 p-2 sm:p-2.5 flex flex-col items-center text-center gap-0.5">
-                <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-amber-700">Streak</p>
-                <p class="text-lg sm:text-xl font-bold text-gray-900 leading-tight">{{ stats.currentStreak }} <span class="text-[9px] sm:text-[10px] font-medium text-amber-700/60">hari</span></p>
-                <p class="text-[9px] sm:text-[10px] text-amber-600/60 truncate max-w-full">task + rutin</p>
+                <!-- Stats: Streak -->
+                <div class="rounded-btn border border-amber-200 bg-amber-50/50 p-2 sm:p-2.5 flex flex-col items-center text-center gap-0.5">
+                    <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-amber-700">Streak</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900 leading-tight">{{ stats.currentStreak }} <span class="text-[9px] sm:text-[10px] font-medium text-amber-700/60">hari</span></p>
+                    <p class="text-[9px] sm:text-[10px] text-amber-600/60 truncate max-w-full">task + rutin</p>
+                </div>
             </div>
 
             <!-- Perlu Dikerjakan (full width) -->
-            <div class="card border-l-[3px] border-l-red-500 p-4 col-span-3">
+            <div class="card border-l-[3px] border-l-red-500 p-4 md:col-span-2 lg:col-span-3">
                 <div class="flex items-center gap-2.5 mb-2.5">
                     <div class="w-6 h-6 rounded-md bg-red-50 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -333,7 +336,7 @@ const matrixBarOptions = {
             </div>
 
             <!-- Rutinitas Hari Ini -->
-            <div class="card border-l-[3px] border-l-blue-500 p-4 col-span-3">
+            <div class="card border-l-[3px] border-l-blue-500 p-4">
                 <div class="flex items-center gap-2.5 mb-2.5">
                     <div class="w-6 h-6 rounded-md bg-blue-50 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -387,7 +390,7 @@ const matrixBarOptions = {
             </div>
 
             <!-- Agenda Mendatang -->
-            <div class="card border-l-[3px] border-l-amber-500 p-4 col-span-3">
+            <div class="card border-l-[3px] border-l-amber-500 p-4 lg:col-span-2">
                 <Link href="/agenda" class="flex items-center gap-2.5 mb-2.5 group">
                     <div class="w-6 h-6 rounded-md bg-amber-50 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -425,7 +428,7 @@ const matrixBarOptions = {
             </div>
 
             <!-- Chart: Tren 7 Hari (Line/Area) -->
-            <div class="card border-l-[3px] border-l-blue-500 p-4 col-span-3">
+            <div class="card border-l-[3px] border-l-blue-500 p-4 md:col-span-2 lg:col-span-2">
                 <div class="flex items-center gap-2.5 mb-3">
                     <div class="w-6 h-6 rounded-md bg-blue-50 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -440,7 +443,7 @@ const matrixBarOptions = {
             </div>
 
             <!-- Chart: Selesai vs Belum per Matrix (Stacked Horizontal Bar) -->
-            <div class="card border-l-[3px] border-l-emerald-500 p-4 col-span-3">
+            <div class="card border-l-[3px] border-l-emerald-500 p-4 md:col-span-2 lg:col-span-1">
                 <div class="flex items-center gap-2.5 mb-3">
                     <div class="w-6 h-6 rounded-md bg-emerald-50 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -454,8 +457,8 @@ const matrixBarOptions = {
                 </div>
             </div>
 
-            <!-- Donut Chart: Kuadran (full width) -->
-            <div class="card border-l-[3px] border-l-gray-300 p-4 col-span-3">
+            <!-- Donut Chart: Kuadran -->
+            <div class="card border-l-[3px] border-l-gray-300 p-4">
                 <div class="flex items-center gap-2.5 mb-3">
                     <div class="w-6 h-6 rounded-md bg-gray-100 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -487,7 +490,7 @@ const matrixBarOptions = {
             </div>
 
             <!-- Bar Chart: 6 Bulan -->
-            <div class="card border-l-[3px] border-l-gray-300 p-4 col-span-3">
+            <div class="card border-l-[3px] border-l-gray-300 p-4 lg:col-span-2">
                 <h3 class="text-[15px] font-bold text-gray-800 mb-2.5">6 Bulan Terakhir</h3>
                 <div class="h-36">
                     <Bar :data="barMonthData" :options="barOptions" />
@@ -495,7 +498,7 @@ const matrixBarOptions = {
             </div>
 
             <!-- Recent Completed (full width) -->
-            <div class="card border-l-[3px] border-l-emerald-500 p-4 col-span-3">
+            <div class="card border-l-[3px] border-l-emerald-500 p-4 md:col-span-2 lg:col-span-3">
                 <div class="flex items-center gap-2.5 mb-2.5">
                     <div class="w-6 h-6 rounded-md bg-emerald-50 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">

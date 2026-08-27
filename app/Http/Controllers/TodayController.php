@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DailyTarget;
 use App\Models\Task;
+use App\Models\SubTask;
 use App\Models\Routine;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +22,10 @@ class TodayController extends Controller
             ->where('date', $today)
             ->with('targetable')
             ->get();
+
+        // Load task relationship hanya untuk SubTask instances
+        $dailyTargets->filter(fn($dt) => $dt->targetable_type === SubTask::class)
+            ->each(fn($dt) => $dt->targetable->load('task'));
 
         $dailyTargetTaskIds = $dailyTargets
             ->filter(fn($dt) => $dt->targetable_type === Task::class)
@@ -70,7 +75,26 @@ class TodayController extends Controller
                 ->where('date', $today)
                 ->with('targetable')
                 ->get();
+
+            // Load task relationship hanya untuk SubTask instances
+            $dailyTargets->filter(fn($dt) => $dt->targetable_type === SubTask::class)
+                ->each(fn($dt) => $dt->targetable->load('task'));
         }
+
+        // Tandai sub-tasks: nested (parent ada di hari ini) atau orphan
+        $parentTaskIds = $dailyTargets
+            ->filter(fn($dt) => $dt->targetable_type === Task::class)
+            ->pluck('targetable_id')
+            ->toArray();
+
+        $dailyTargets = $dailyTargets->map(function ($dt) use ($parentTaskIds) {
+            if ($dt->targetable_type === SubTask::class && $dt->targetable) {
+                $dt->is_nested = in_array($dt->targetable->task_id, $parentTaskIds);
+            } else {
+                $dt->is_nested = false;
+            }
+            return $dt;
+        });
 
         return Inertia::render('Today/Index', [
             'dailyTargets' => $dailyTargets,
