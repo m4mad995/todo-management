@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use App\Models\DailyTarget;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -51,6 +52,14 @@ class TaskController extends Controller
         // 3. Gunakan if terpisah (tanpa elseif)
         if ($request->has('completed')) {
             $task->update(['completed_at' => $request->completed ? now() : null]);
+
+            DailyTarget::where('user_id', Auth::id())
+                ->where('targetable_type', Task::class)
+                ->where('targetable_id', $task->id)
+                ->update([
+                    'is_completed' => $request->completed,
+                    'completed_at' => $request->completed ? now() : null,
+                ]);
         }
 
         if ($request->has('matrix')) {

@@ -66,6 +66,14 @@ class FocusController extends Controller
 
         if ($request->has('completed')) {
             $focus->update(['completed_at' => $request->completed ? now() : null]);
+
+            DailyTarget::where('user_id', Auth::id())
+                ->where('targetable_type', Task::class)
+                ->where('targetable_id', $focus->id)
+                ->update([
+                    'is_completed' => $request->completed,
+                    'completed_at' => $request->completed ? now() : null,
+                ]);
         }
 
         if ($request->has('matrix')) {

@@ -8,6 +8,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\SubTaskController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DailyTargetController;
+use App\Http\Controllers\TodayController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -26,6 +27,9 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Today (Hari Ini)
+    Route::get('/today', [TodayController::class, 'index'])->name('today.index');
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -100,6 +100,7 @@ const isUrl = (...urls) => {
 const navItems = [
     { href: '/dashboard', label: 'Dashboard', icon: 'chart' },
     { href: '/focus', label: 'Fokus', icon: 'target' },
+    { href: '/today', label: 'Hari Ini', icon: 'checklist' },
     { href: '/routines', label: 'Rutinitas', icon: 'refresh' },
     { href: '/agenda', label: 'Agenda', icon: 'calendar' },
 ];
@@ -113,8 +114,8 @@ const userName = () => {
 <template>
     <div class="min-h-screen bg-canvas flex text-gray-800">
 
-        <!-- SIDEBAR -->
-        <aside class="w-60 bg-surface border-r border-border flex flex-col justify-between shrink-0 fixed h-full z-20">
+        <!-- SIDEBAR (desktop only) -->
+        <aside class="w-60 bg-surface border-r border-border flex flex-col justify-between shrink-0 fixed h-full z-20 hidden lg:flex">
             <div class="p-5">
                 <!-- Logo -->
                 <Link href="/focus" class="flex items-center gap-2.5 mb-8 px-2">
@@ -149,6 +150,10 @@ const userName = () => {
                             <circle cx="12" cy="12" r="6" />
                             <circle cx="12" cy="12" r="2" />
                         </svg>
+                        <!-- Checklist -->
+                        <svg v-if="item.icon === 'checklist'" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                        </svg>
                         <!-- Refresh -->
                         <svg v-if="item.icon === 'refresh'" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -166,7 +171,7 @@ const userName = () => {
             <div class="p-5 pt-0">
                 <button
                     @click="openQuickModal()"
-                    class="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-btn border border-dashed border-gray-300 text-gray-500 text-[15px] font-medium hover:border-red-400 hover:text-red-600 hover:bg-red-50/50 transition-all duration-150"
+                    class="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-btn bg-blue-600 text-white text-[15px] font-medium shadow-lg shadow-blue-600/25 hover:bg-blue-700 active:scale-[0.98] transition-all duration-150"
                 >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
@@ -177,7 +182,7 @@ const userName = () => {
         </aside>
 
         <!-- MAIN CONTENT -->
-        <div class="flex-1 ml-60 flex flex-col min-h-screen">
+        <div class="flex-1 lg:ml-60 flex flex-col min-h-screen">
 
             <!-- TOPBAR -->
             <header class="h-14 bg-canvas/80 backdrop-blur-sm px-6 flex items-center justify-between sticky top-0 z-10 border-b border-transparent">
@@ -211,10 +216,77 @@ const userName = () => {
             </header>
 
             <!-- Page Content -->
-            <main class="flex-1 px-6 py-6">
+            <main class="flex-1 px-4 sm:px-6 py-6 pb-24 lg:pb-6">
                 <slot />
             </main>
         </div>
+
+        <!-- BOTTOM NAVBAR (mobile only) -->
+        <nav class="fixed bottom-0 inset-x-0 bg-surface/95 backdrop-blur-md border-t border-border z-20 lg:hidden" style="padding-bottom: env(safe-area-inset-bottom, 0px);">
+            <div class="flex items-center h-16 max-w-lg mx-auto px-2">
+                <!-- Left: 2 tabs -->
+                <div class="flex-1 flex justify-center gap-1">
+                    <!-- Dashboard -->
+                    <Link href="/dashboard" :class="[
+                        'flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg transition-all duration-150 min-w-[48px]',
+                        isUrl('/dashboard') ? 'text-blue-600' : 'text-gray-400'
+                    ]">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        <span class="text-[10px] font-semibold leading-none">Dashboard</span>
+                    </Link>
+
+                    <!-- Fokus -->
+                    <Link href="/focus" :class="[
+                        'flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg transition-all duration-150 min-w-[48px]',
+                        isUrl('/focus') ? 'text-blue-600' : 'text-gray-400'
+                    ]">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <circle cx="12" cy="12" r="10" />
+                            <circle cx="12" cy="12" r="6" />
+                            <circle cx="12" cy="12" r="2" />
+                        </svg>
+                        <span class="text-[10px] font-semibold leading-none">Fokus</span>
+                    </Link>
+                </div>
+
+                <!-- Center: FAB -->
+                <button
+                    @click="openQuickModal()"
+                    class="flex items-center justify-center w-11 h-11 -mt-4 rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/25 active:scale-95 transition-all duration-150 shrink-0"
+                >
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                </button>
+
+                <!-- Right: 2 tabs -->
+                <div class="flex-1 flex justify-center gap-1">
+                    <!-- Hari Ini -->
+                    <Link href="/today" :class="[
+                        'flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg transition-all duration-150 min-w-[48px]',
+                        isUrl('/today') ? 'text-blue-600' : 'text-gray-400'
+                    ]">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                        </svg>
+                        <span class="text-[10px] font-semibold leading-none">Hari Ini</span>
+                    </Link>
+
+                    <!-- Rutinitas -->
+                    <Link href="/routines" :class="[
+                        'flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg transition-all duration-150 min-w-[48px]',
+                        isUrl('/routines') ? 'text-blue-600' : 'text-gray-400'
+                    ]">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <span class="text-[10px] font-semibold leading-none">Rutinitas</span>
+                    </Link>
+                </div>
+            </div>
+        </nav>
     </div>
 
     <!-- QUICK ENTRY MODAL -->
@@ -336,6 +408,11 @@ const userName = () => {
                                 </button>
                             </div>
                         </form>
+
+                        <!-- Lihat Semua Agenda (only on Agenda tab) -->
+                        <Link v-if="quickForm.type === 'agenda'" href="/agenda" class="flex items-center justify-center pt-2 text-[12px] text-gray-400 hover:text-amber-500 transition">
+                            Lihat Semua Agenda →
+                        </Link>
                     </div>
                 </div>
             </div>

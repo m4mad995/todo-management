@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\SubTask;
 use App\Models\Task;
+use App\Models\DailyTarget;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -49,9 +50,18 @@ class SubTaskController extends Controller
 
             $total = $task->subTasks()->count();
             $completed = $task->subTasks()->where('is_completed', true)->count();
+            $isComplete = $total > 0 && $total === $completed;
             $task->update([
-                'completed_at' => $total > 0 && $total === $completed ? now() : null,
+                'completed_at' => $isComplete ? now() : null,
             ]);
+
+            DailyTarget::where('user_id', Auth::id())
+                ->where('targetable_type', Task::class)
+                ->where('targetable_id', $task->id)
+                ->update([
+                    'is_completed' => $isComplete,
+                    'completed_at' => $isComplete ? now() : null,
+                ]);
         }
 
         if ($request->has('title')) {
@@ -81,6 +91,14 @@ class SubTaskController extends Controller
         $completed = $task->subTasks()->where('is_completed', true)->count();
         if ($total === 0 || $total !== $completed) {
             $task->update(['completed_at' => null]);
+
+            DailyTarget::where('user_id', Auth::id())
+                ->where('targetable_type', Task::class)
+                ->where('targetable_id', $task->id)
+                ->update([
+                    'is_completed' => false,
+                    'completed_at' => null,
+                ]);
         }
 
         return back();

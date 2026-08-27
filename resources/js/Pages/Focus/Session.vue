@@ -100,6 +100,22 @@ const setPreset = (workMin, breakMin, modeLabel) => {
     timeLeft.value = workTime.value;
 };
 
+const showSkipConfirm = ref(false);
+
+const skipPhase = () => {
+    showSkipConfirm.value = false;
+    pauseTimer();
+    playBeep();
+    if (!isBreak.value) {
+        cyclesCompleted.value++;
+        isBreak.value = true;
+        timeLeft.value = breakTime.value;
+    } else {
+        isBreak.value = false;
+        timeLeft.value = workTime.value;
+    }
+};
+
 const markAsComplete = () => {
     if (props.activeTask) {
         router.patch(`/tasks/${props.activeTask.id}`, {
@@ -218,6 +234,13 @@ const presets = [
                     </svg>
                     Reset
                 </button>
+
+                <button @click="showSkipConfirm = true" class="btn-ghost btn-md">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                    </svg>
+                    Skip
+                </button>
             </div>
 
             <!-- Mark Complete -->
@@ -234,4 +257,39 @@ const presets = [
             </div>
         </div>
     </AuthenticatedLayout>
+
+    <!-- Skip Confirmation Modal -->
+    <Teleport to="body">
+        <Transition
+            enter-active-class="duration-200 ease-out"
+            enter-from-class="opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="duration-150 ease-in"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0"
+        >
+            <div v-if="showSkipConfirm" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div class="absolute inset-0 bg-gray-900/30 backdrop-blur-sm" @click="showSkipConfirm = false"></div>
+                <div class="relative bg-surface rounded-card shadow-elevated border border-border w-full max-w-sm animate-slide-up">
+                    <div class="p-5">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-[15px] font-bold text-gray-900">Skip Sesi Ini?</h3>
+                                <p class="text-[13px] text-gray-500">Timer akan di-skip dan lanjut ke fase berikutnya.</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-2 pt-3 border-t border-gray-100">
+                            <button @click="showSkipConfirm = false" class="btn-ghost btn-sm">Batal</button>
+                            <button @click="skipPhase" class="btn-primary btn-sm">Skip Sesi</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+    </Teleport>
 </template>

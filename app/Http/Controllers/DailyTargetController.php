@@ -45,6 +45,25 @@ class DailyTargetController extends Controller
             'date'            => now()->toDateString(),
         ]);
 
+        if ($model instanceof Task) {
+            $subTasks = $model->subTasks()->whereNull('completed_at')->get();
+            foreach ($subTasks as $subTask) {
+                $subExists = DailyTarget::where('user_id', Auth::id())
+                    ->where('targetable_type', SubTask::class)
+                    ->where('targetable_id', $subTask->id)
+                    ->where('date', now()->toDateString())
+                    ->exists();
+                if (!$subExists) {
+                    DailyTarget::create([
+                        'user_id'         => Auth::id(),
+                        'targetable_type' => SubTask::class,
+                        'targetable_id'   => $subTask->id,
+                        'date'            => now()->toDateString(),
+                    ]);
+                }
+            }
+        }
+
         return back();
     }
 
@@ -70,7 +89,10 @@ class DailyTargetController extends Controller
                     'completed_at' => $newStatus ? now() : null,
                 ]);
             } elseif ($model instanceof Routine) {
-                $model->update(['is_completed_today' => $newStatus]);
+                $model->update([
+                    'is_completed_today' => $newStatus,
+                    'last_completed_date' => $newStatus ? now()->toDateString() : null,
+                ]);
             }
         }
 

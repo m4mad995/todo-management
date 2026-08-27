@@ -280,50 +280,31 @@ const matrixBarOptions = {
         </div>
 
         <!-- Bento Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div class="grid grid-cols-3 gap-2">
 
             <!-- Stats: Selesai Hari Ini -->
-            <div class="card p-4 flex items-center gap-3">
-                <div class="w-10 h-10 rounded-btn bg-emerald-50 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                </div>
-                <div>
-                    <p class="text-[11px] text-gray-500 font-semibold uppercase tracking-wider">Selesai</p>
-                    <p class="text-2xl font-bold text-gray-900 leading-tight">{{ stats.completedToday }}</p>
-                    <p class="text-[11px] text-gray-400">{{ stats.totalToday }} total hari ini</p>
-                </div>
+            <div class="rounded-btn border border-emerald-200 bg-emerald-50/50 p-2 sm:p-2.5 flex flex-col items-center text-center gap-0.5">
+                <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-700">Selesai</p>
+                <p class="text-lg sm:text-xl font-bold text-gray-900 leading-tight">{{ stats.completedToday }}</p>
+                <p class="text-[9px] sm:text-[10px] text-emerald-600/60 truncate max-w-full">{{ stats.totalToday }} total</p>
             </div>
 
             <!-- Stats: Rate -->
-            <div class="card p-4 flex items-center gap-3">
-                <div class="w-10 h-10 rounded-btn bg-blue-50 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                </div>
-                <div>
-                    <p class="text-[11px] text-gray-500 font-semibold uppercase tracking-wider">Rate</p>
-                    <p class="text-2xl font-bold text-gray-900 leading-tight">{{ stats.completionRate }}%</p>
-                    <p class="text-[11px] text-gray-400">semua task</p>
-                </div>
+            <div class="rounded-btn border border-indigo-200 bg-indigo-50/50 p-2 sm:p-2.5 flex flex-col items-center text-center gap-0.5">
+                <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-indigo-700">Rate</p>
+                <p class="text-lg sm:text-xl font-bold text-gray-900 leading-tight">{{ stats.completionRate }}%</p>
+                <p class="text-[9px] sm:text-[10px] text-indigo-600/60 truncate max-w-full">semua task</p>
             </div>
 
             <!-- Stats: Streak -->
-            <div class="card p-4 flex items-center gap-3">
-                <div class="w-10 h-10 rounded-btn bg-amber-50 flex items-center justify-center shrink-0">
-                    <span class="text-lg">🔥</span>
-                </div>
-                <div>
-                    <p class="text-[11px] text-gray-500 font-semibold uppercase tracking-wider">Streak</p>
-                    <p class="text-2xl font-bold text-gray-900 leading-tight">{{ stats.currentStreak }} <span class="text-sm font-medium text-gray-500">hari</span></p>
-                    <p class="text-[11px] text-gray-400">task + rutin</p>
-                </div>
+            <div class="rounded-btn border border-amber-200 bg-amber-50/50 p-2 sm:p-2.5 flex flex-col items-center text-center gap-0.5">
+                <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-amber-700">Streak</p>
+                <p class="text-lg sm:text-xl font-bold text-gray-900 leading-tight">{{ stats.currentStreak }} <span class="text-[9px] sm:text-[10px] font-medium text-amber-700/60">hari</span></p>
+                <p class="text-[9px] sm:text-[10px] text-amber-600/60 truncate max-w-full">task + rutin</p>
             </div>
 
             <!-- Perlu Dikerjakan (full width) -->
-            <div class="card border-l-[3px] border-l-red-500 p-4 sm:col-span-2 lg:col-span-3">
+            <div class="card border-l-[3px] border-l-red-500 p-4 col-span-3">
                 <div class="flex items-center gap-2.5 mb-2.5">
                     <div class="w-6 h-6 rounded-md bg-red-50 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -352,7 +333,7 @@ const matrixBarOptions = {
             </div>
 
             <!-- Rutinitas Hari Ini -->
-            <div class="card border-l-[3px] border-l-blue-500 p-4">
+            <div class="card border-l-[3px] border-l-blue-500 p-4 col-span-3">
                 <div class="flex items-center gap-2.5 mb-2.5">
                     <div class="w-6 h-6 rounded-md bg-blue-50 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -406,15 +387,15 @@ const matrixBarOptions = {
             </div>
 
             <!-- Agenda Mendatang -->
-            <div class="card border-l-[3px] border-l-amber-500 p-4 sm:col-span-2">
-                <div class="flex items-center gap-2.5 mb-2.5">
+            <div class="card border-l-[3px] border-l-amber-500 p-4 col-span-3">
+                <Link href="/agenda" class="flex items-center gap-2.5 mb-2.5 group">
                     <div class="w-6 h-6 rounded-md bg-amber-50 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                     </div>
-                    <h3 class="text-[15px] font-bold text-gray-800">Agenda Mendatang</h3>
-                </div>
+                    <h3 class="text-[15px] font-bold text-gray-800 group-hover:text-amber-600 transition">Agenda Mendatang</h3>
+                </Link>
                 <div v-if="upcomingAgendas.length > 0" class="space-y-1">
                     <div
                         v-for="agenda in upcomingAgendas"
@@ -438,10 +419,13 @@ const matrixBarOptions = {
                 <div v-else class="text-center py-4">
                     <p class="text-[13px] text-gray-400">Tidak ada agenda mendatang.</p>
                 </div>
+                <Link href="/agenda" class="flex items-center justify-center gap-1.5 pt-3 border-t border-gray-100 mt-3 text-[13px] text-amber-600 hover:text-amber-700 font-medium transition">
+                    Lihat Semua Agenda →
+                </Link>
             </div>
 
             <!-- Chart: Tren 7 Hari (Line/Area) -->
-            <div class="card border-l-[3px] border-l-blue-500 p-4 sm:col-span-2">
+            <div class="card border-l-[3px] border-l-blue-500 p-4 col-span-3">
                 <div class="flex items-center gap-2.5 mb-3">
                     <div class="w-6 h-6 rounded-md bg-blue-50 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -456,7 +440,7 @@ const matrixBarOptions = {
             </div>
 
             <!-- Chart: Selesai vs Belum per Matrix (Stacked Horizontal Bar) -->
-            <div class="card border-l-[3px] border-l-emerald-500 p-4">
+            <div class="card border-l-[3px] border-l-emerald-500 p-4 col-span-3">
                 <div class="flex items-center gap-2.5 mb-3">
                     <div class="w-6 h-6 rounded-md bg-emerald-50 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -471,7 +455,7 @@ const matrixBarOptions = {
             </div>
 
             <!-- Donut Chart: Kuadran (full width) -->
-            <div class="card border-l-[3px] border-l-gray-300 p-4 lg:col-span-1">
+            <div class="card border-l-[3px] border-l-gray-300 p-4 col-span-3">
                 <div class="flex items-center gap-2.5 mb-3">
                     <div class="w-6 h-6 rounded-md bg-gray-100 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -482,7 +466,7 @@ const matrixBarOptions = {
                     <h3 class="text-[15px] font-bold text-gray-800">Berdasarkan Kuadran</h3>
                 </div>
                 <div class="flex flex-col sm:flex-row items-center gap-5">
-                    <div class="w-40 h-40 shrink-0 relative">
+                    <div class="w-32 h-32 sm:w-40 sm:h-40 shrink-0 relative">
                         <Doughnut :data="doughnutData" :options="doughnutOptions" />
                         <div class="absolute inset-0 flex items-center justify-center">
                             <span class="text-2xl font-bold text-gray-900">{{ stats.totalCompleted }}</span>
@@ -503,7 +487,7 @@ const matrixBarOptions = {
             </div>
 
             <!-- Bar Chart: 6 Bulan -->
-            <div class="card border-l-[3px] border-l-gray-300 p-4 sm:col-span-1 lg:col-span-2">
+            <div class="card border-l-[3px] border-l-gray-300 p-4 col-span-3">
                 <h3 class="text-[15px] font-bold text-gray-800 mb-2.5">6 Bulan Terakhir</h3>
                 <div class="h-36">
                     <Bar :data="barMonthData" :options="barOptions" />
@@ -511,7 +495,7 @@ const matrixBarOptions = {
             </div>
 
             <!-- Recent Completed (full width) -->
-            <div class="card border-l-[3px] border-l-emerald-500 p-4 sm:col-span-2 lg:col-span-3">
+            <div class="card border-l-[3px] border-l-emerald-500 p-4 col-span-3">
                 <div class="flex items-center gap-2.5 mb-2.5">
                     <div class="w-6 h-6 rounded-md bg-emerald-50 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">

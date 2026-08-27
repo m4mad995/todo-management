@@ -133,6 +133,7 @@ const deleteTask = (taskId) => {
 const expandedTask = ref(null);
 const newSubTaskTitle = ref('');
 const showSubTaskInput = ref(null);
+const subTaskInput = ref(null);
 const editingSubTask = ref(null);
 const editSubTaskTitle = ref('');
 
@@ -141,6 +142,22 @@ const toggleExpand = (taskId) => {
         expandedTask.value = null;
     } else {
         expandedTask.value = taskId;
+    }
+};
+
+const toggleSubTaskInput = (itemId) => {
+    if (showSubTaskInput.value === itemId) {
+        showSubTaskInput.value = null;
+        newSubTaskTitle.value = '';
+    } else {
+        showSubTaskInput.value = itemId;
+        newSubTaskTitle.value = '';
+        nextTick(() => {
+            const el = Array.isArray(subTaskInput.value)
+                ? subTaskInput.value.find(Boolean)
+                : subTaskInput.value;
+            el?.focus();
+        });
     }
 };
 
@@ -183,16 +200,6 @@ const canHaveSubTasks = (matrix) => matrix !== 'drop';
 const addToToday = (type, id) => {
     router.post('/daily-targets', { targetable_type: type, targetable_id: id });
 };
-
-const toggleTargetComplete = (dailyTargetId) => {
-    router.patch(`/daily-targets/${dailyTargetId}`);
-};
-
-const removeFromToday = (dailyTargetId) => {
-    router.delete(`/daily-targets/${dailyTargetId}`);
-};
-
-const showCompletedTargets = ref(false);
 
 const matrixConfig = {
     do_first: {
@@ -248,88 +255,19 @@ const matrixConfig = {
             </p>
         </div>
 
-        <!-- Hari Ini (Daily Targets) -->
-        <div v-if="activeTargets.length > 0 || completedTargets.length > 0" class="card p-4 mb-6">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
-                    <span class="badge-emerald">Hari Ini</span>
-                    <span class="text-[13px] text-gray-400">{{ activeTargets.length }} target aktif</span>
-                </div>
-            </div>
-
-            <!-- Active Targets -->
-            <div v-if="activeTargets.length > 0" class="space-y-1.5 mb-3">
-                <div
-                    v-for="target in activeTargets"
-                    :key="target.id"
-                    class="flex items-center justify-between p-2.5 rounded-btn hover:bg-gray-50 transition group"
-                >
-                    <div class="flex items-center gap-2.5 flex-1 min-w-0">
-                        <button
-                            @click="toggleTargetComplete(target.id)"
-                            class="w-5 h-5 rounded border-2 border-emerald-300 flex items-center justify-center transition hover:border-emerald-500 shrink-0"
-                        >
-                        </button>
-                        <span class="text-[15px] text-gray-700 truncate" :title="target.targetable?.title || 'Task'">{{ target.targetable?.title || 'Task' }}</span>
-                        <span class="text-[11px] font-medium px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 shrink-0">
-                            {{ target.targetable_type?.includes('Routine') ? 'Rutin' : target.targetable_type?.includes('SubTask') ? 'Sub-task' : 'Task' }}
-                        </span>
-                    </div>
-                    <button
-                        @click="removeFromToday(target.id)"
-                        class="w-6 h-6 flex items-center justify-center rounded text-gray-300 hover:text-red-400 transition opacity-0 group-hover:opacity-100 shrink-0"
-                        title="Hapus dari Hari Ini"
-                    >
-                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Completed Targets (Collapsible) -->
-            <div v-if="completedTargets.length > 0">
-                <button
-                    @click="showCompletedTargets = !showCompletedTargets"
-                    class="flex items-center gap-2 text-[13px] font-medium text-emerald-600 hover:text-emerald-700 transition mb-2"
-                >
-                    <svg
-                        :class="['w-3.5 h-3.5 transition-transform', showCompletedTargets ? 'rotate-90' : '']"
-                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"
-                    >
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
-                    {{ completedTargets.length }} selesai hari ini
-                </button>
-                <div v-if="showCompletedTargets" class="space-y-1 animate-fade-in">
-                    <div
-                        v-for="target in completedTargets"
-                        :key="target.id"
-                        class="flex items-center justify-between p-2 rounded-btn bg-emerald-50/50 group"
-                    >
-                        <div class="flex items-center gap-2.5 flex-1 min-w-0">
-                            <button
-                                @click="toggleTargetComplete(target.id)"
-                                class="w-5 h-5 rounded bg-emerald-400 border-2 border-emerald-400 flex items-center justify-center shrink-0"
-                            >
-                                <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                            </button>
-                            <span class="text-[14px] text-gray-500 line-through truncate" :title="target.targetable?.title || 'Task'">{{ target.targetable?.title || 'Task' }}</span>
-                        </div>
-                        <button
-                            @click="removeFromToday(target.id)"
-                            class="w-6 h-6 flex items-center justify-center rounded text-gray-300 hover:text-red-400 transition opacity-0 group-hover:opacity-100 shrink-0"
-                        >
-                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Hari Ini (Compact Link) -->
+        <Link
+            v-if="activeTargets.length > 0 || completedTargets.length > 0"
+            href="/today"
+            class="flex items-center gap-2.5 px-4 py-3 mb-6 rounded-card bg-emerald-50/50 border border-emerald-200 hover:bg-emerald-50 transition"
+        >
+            <span class="badge-emerald">Hari Ini</span>
+            <span class="text-[13px] text-gray-600">
+                {{ activeTargets.length }} target aktif
+                <span v-if="completedTargets.length > 0" class="text-emerald-600">· {{ completedTargets.length }} selesai</span>
+            </span>
+            <span class="text-[12px] font-medium text-emerald-600 ml-auto">Lihat →</span>
+        </Link>
 
         <!-- Inbox -->
         <div v-if="unprocessedTasks.length > 0" class="card p-4 mb-6">
@@ -470,7 +408,7 @@ const matrixConfig = {
                     <span class="section-title">Action Matrix</span>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div
                         v-for="(tasks, key) in { do_first: doFirst, schedule: schedule, delegate: delegate, drop: drop }"
                         :key="key"
@@ -578,7 +516,7 @@ const matrixConfig = {
                                         <!-- Sub-task button -->
                                         <button
                                             v-if="canHaveSubTasks(key)"
-                                            @click.stop="showSubTaskInput = showSubTaskInput === item.id ? null : item.id"
+                                            @click.stop="toggleSubTaskInput(item.id)"
                                             class="w-7 h-7 flex items-center justify-center rounded-md text-gray-300 hover:text-violet-500 hover:bg-violet-50 transition"
                                             title="Tambah sub-task"
                                         >
@@ -623,7 +561,7 @@ const matrixConfig = {
                                             type="text"
                                             placeholder="Judul sub-task..."
                                             class="input text-xs flex-1"
-                                            autofocus
+                                            ref="subTaskInput"
                                         />
                                         <button type="submit" class="btn-primary btn-sm !px-2.5 !py-1.5 text-[13px]">
                                             OK

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Routine;
+use App\Models\DailyTarget;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -60,6 +61,28 @@ class RoutineController extends Controller
         }
 
         $routine->update($validated);
+
+        if (isset($validated['is_completed_today'])) {
+            $updated = DailyTarget::where('user_id', $request->user()->id)
+                ->where('targetable_type', Routine::class)
+                ->where('targetable_id', $routine->id)
+                ->where('date', now()->toDateString())
+                ->update([
+                    'is_completed' => $validated['is_completed_today'],
+                    'completed_at' => $validated['is_completed_today'] ? now() : null,
+                ]);
+
+            if ($updated === 0 && $validated['is_completed_today']) {
+                DailyTarget::create([
+                    'user_id'         => $request->user()->id,
+                    'targetable_type' => Routine::class,
+                    'targetable_id'   => $routine->id,
+                    'date'            => now()->toDateString(),
+                    'is_completed'    => true,
+                    'completed_at'    => now(),
+                ]);
+            }
+        }
 
         return redirect()->back();
     }

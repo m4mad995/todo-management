@@ -159,7 +159,7 @@ const formatTime = (time) => {
                     <p class="text-sm text-gray-400">Tidak ada agenda mendatang.</p>
                 </div>
 
-                <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                     <div
                         v-for="item in upcomingAgendas"
                         :key="item.id"
@@ -210,7 +210,7 @@ const formatTime = (time) => {
                         Selesai & Lewat ({{ completedOrPastAgendas.length }})
                     </summary>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-3">
                         <div
                             v-for="item in completedOrPastAgendas"
                             :key="item.id"
