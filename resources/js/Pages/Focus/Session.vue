@@ -189,7 +189,7 @@ const presets = [
                     :key="p.label"
                     @click="setPreset(p.work, p.break, p.label)"
                     :class="[
-                        'px-4 py-2 rounded-btn text-sm font-medium transition-all duration-150',
+                        'px-3 sm:px-4 py-2 rounded-btn text-sm font-medium transition-all duration-150',
                         presetMode === p.label
                             ? 'bg-surface text-gray-900 shadow-sm'
                             : 'text-gray-500 hover:text-gray-700'
