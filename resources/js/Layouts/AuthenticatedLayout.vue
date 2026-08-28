@@ -112,7 +112,7 @@ const userName = () => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-canvas flex text-gray-800 overflow-x-hidden">
+    <div class="min-h-screen bg-canvas flex text-gray-800 overflow-x-hidden w-full">
 
         <!-- SIDEBAR (desktop only) -->
         <aside class="w-60 bg-surface border-r border-border flex flex-col justify-between shrink-0 fixed h-full z-20 hidden lg:flex">
@@ -182,7 +182,7 @@ const userName = () => {
         </aside>
 
         <!-- MAIN CONTENT -->
-        <div class="flex-1 lg:ml-60 flex flex-col min-h-screen">
+        <div class="flex-1 lg:ml-60 flex flex-col min-h-screen w-full">
 
             <!-- TOPBAR -->
             <header class="h-14 bg-canvas/80 backdrop-blur-sm px-4 md:px-6 flex items-center justify-between sticky top-0 z-10 border-b border-transparent overflow-hidden">
