@@ -112,7 +112,7 @@ const userName = () => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-canvas flex text-gray-800">
+    <div class="min-h-screen bg-canvas flex text-gray-800 overflow-x-hidden">
 
         <!-- SIDEBAR (desktop only) -->
         <aside class="w-60 bg-surface border-r border-border flex flex-col justify-between shrink-0 fixed h-full z-20 hidden lg:flex">
@@ -185,8 +185,8 @@ const userName = () => {
         <div class="flex-1 lg:ml-60 flex flex-col min-h-screen">
 
             <!-- TOPBAR -->
-            <header class="h-14 bg-canvas/80 backdrop-blur-sm px-6 flex items-center justify-between sticky top-0 z-10 border-b border-transparent">
-                <div v-if="!isDashboard" class="w-full max-w-lg">
+            <header class="h-14 bg-canvas/80 backdrop-blur-sm px-4 md:px-6 flex items-center justify-between sticky top-0 z-10 border-b border-transparent overflow-hidden">
+                <div v-if="!isDashboard" class="w-full max-w-full">
                     <form @submit.prevent="handleTopbarSubmit" class="relative flex items-center">
                         <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -216,7 +216,7 @@ const userName = () => {
             </header>
 
             <!-- Page Content -->
-            <main class="flex-1 px-4 sm:px-6 py-6 pb-24 lg:pb-6">
+            <main class="flex-1 px-4 sm:px-6 py-4 sm:py-6 pb-20 sm:pb-32 lg:pb-6 overflow-x-hidden">
                 <slot />
             </main>
         </div>

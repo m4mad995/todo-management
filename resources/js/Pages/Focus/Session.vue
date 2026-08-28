@@ -167,7 +167,7 @@ const presets = [
         </div>
 
         <!-- Main Card -->
-        <div class="max-w-lg mx-auto card p-8 text-center">
+        <div class="max-w-lg mx-auto card p-5 sm:p-8 text-center">
             <!-- Mode Badge -->
             <span :class="isBreak ? 'badge-emerald' : 'badge-blue'" class="mb-4 inline-flex">
                 {{ isBreak ? 'Istirahat' : 'Fokus' }}
@@ -202,14 +202,14 @@ const presets = [
             <!-- Timer -->
             <div class="my-6">
                 <div
-                    class="text-6xl font-mono font-black tracking-tight transition-colors text-blue-600"
+                    class="text-5xl sm:text-6xl font-mono font-black tracking-tight transition-colors text-blue-600"
                 >
                     {{ formattedTime }}
                 </div>
             </div>
 
             <!-- Controls -->
-            <div class="flex items-center justify-center gap-3 my-6">
+            <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 my-6">
                 <button
                     @click="toggleTimer"
                     :class="[

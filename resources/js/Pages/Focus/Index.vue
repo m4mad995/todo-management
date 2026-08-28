@@ -246,11 +246,11 @@ const matrixConfig = {
 
     <AuthenticatedLayout>
         <!-- Greeting -->
-        <div class="mb-6">
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">
+        <div class="mb-4 sm:mb-6">
+            <h1 class="text-xl md:text-2xl font-bold text-gray-900 tracking-tight">
                 {{ greeting }}, {{ userName }}.
             </h1>
-            <p class="text-gray-500 mt-0.5 text-[15px]">
+            <p class="text-gray-500 mt-0.5 text-[13px] sm:text-[15px]">
                 Fokus hari ini. Tetap tenang dan tujuan.
             </p>
         </div>
@@ -259,7 +259,7 @@ const matrixConfig = {
         <Link
             v-if="activeTargets.length > 0 || completedTargets.length > 0"
             href="/today"
-            class="flex items-center gap-2.5 px-4 py-3 mb-6 rounded-card bg-emerald-50/50 border border-emerald-200 hover:bg-emerald-50 transition"
+            class="flex items-center gap-2.5 px-4 py-3 mb-4 sm:mb-6 rounded-card bg-emerald-50/50 border border-emerald-200 hover:bg-emerald-50 transition"
         >
             <span class="badge-emerald">Hari Ini</span>
             <span class="text-[13px] text-gray-600">
@@ -270,16 +270,17 @@ const matrixConfig = {
         </Link>
 
         <!-- Inbox -->
-        <div v-if="unprocessedTasks.length > 0" class="card p-4 mb-6">
-            <div class="flex items-center justify-between mb-3">
+        <div v-if="unprocessedTasks.length > 0" class="card p-4 mb-4 sm:mb-6">
+            <div class="flex items-center justify-between mb-2 sm:mb-3">
                 <div class="flex items-center gap-2">
                     <span class="badge-blue">Inbox</span>
-                    <span class="text-[13px] text-gray-400">{{ unprocessedTasks.length }} tugas belum diproses</span>
+                    <span class="text-[13px] text-gray-400 hidden sm:inline">{{ unprocessedTasks.length }} tugas belum diproses</span>
+                    <span class="text-[13px] text-gray-400 sm:hidden">{{ unprocessedTasks.length }}</span>
                 </div>
-                <span class="text-xs text-gray-400">Klik kategori untuk memindahkan</span>
+                <span class="text-xs text-gray-400 hidden sm:inline">Klik kategori untuk memindahkan</span>
             </div>
 
-            <div class="space-y-1.5 max-h-[320px] overflow-y-auto scroll-hidden relative">
+            <div class="space-y-1.5 max-h-[200px] sm:max-h-[320px] overflow-y-auto overflow-x-hidden scroll-hidden relative">
                 <div
                     v-for="task in unprocessedTasks"
                     :key="task.id"
@@ -287,7 +288,7 @@ const matrixConfig = {
                 >
                     <span class="text-[15px] text-gray-700 truncate pr-4" :title="task.title">{{ task.title }}</span>
 
-                    <div class="flex items-center gap-1 shrink-0">
+                    <div class="flex items-center gap-1">
                         <button
                             @click="completeTask(task.id)"
                             class="w-7 h-7 flex items-center justify-center rounded-md text-gray-300 hover:text-emerald-500 hover:bg-emerald-50 transition"
@@ -297,18 +298,20 @@ const matrixConfig = {
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                             </svg>
                         </button>
-                        <button
-                            v-for="matrix in ['do_first', 'schedule', 'delegate', 'drop']"
-                            :key="matrix"
-                            @click="assignMatrix(task.id, matrix)"
-                            :class="[
-                                'px-2.5 py-1 text-[13px] font-semibold rounded-md transition',
-                                matrixConfig[matrix].badgeClass,
-                                matrixConfig[matrix].hoverClass,
-                            ]"
-                        >
-                            {{ matrixConfig[matrix].label }}
-                        </button>
+                        <div class="hidden lg:flex items-center gap-1">
+                            <button
+                                v-for="matrix in ['do_first', 'schedule', 'delegate', 'drop']"
+                                :key="matrix"
+                                @click="assignMatrix(task.id, matrix)"
+                                :class="[
+                                    'px-2.5 py-1 text-[13px] font-semibold rounded-md transition',
+                                    matrixConfig[matrix].badgeClass,
+                                    matrixConfig[matrix].hoverClass,
+                                ]"
+                            >
+                                {{ matrixConfig[matrix].label }}
+                            </button>
+                        </div>
                         <button @click="deleteTask(task.id)" class="w-7 h-7 flex items-center justify-center rounded-md text-gray-300 hover:text-red-500 hover:bg-red-50 transition text-xs font-bold">
                             x
                         </button>
@@ -320,7 +323,7 @@ const matrixConfig = {
         </div>
 
         <!-- Main Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 lg:gap-6 items-start">
 
             <!-- Left: Carousel -->
             <div
@@ -328,12 +331,12 @@ const matrixConfig = {
                 @mouseenter="stopAutoPlay"
                 @mouseleave="startAutoPlay"
             >
-                <div class="flex items-center justify-between mb-3">
+<div class="flex items-center justify-between mb-2 sm:mb-3">
                     <span class="section-title">Daily Review</span>
                     <span class="badge-gray">{{ unprocessedCount }} di Inbox</span>
                 </div>
 
-                <div class="card p-6 flex flex-col items-center text-center min-h-[340px] relative">
+                <div class="card p-3 sm:p-6 flex flex-col items-center text-center min-h-[200px] sm:min-h-[340px] relative overflow-hidden">
                     <!-- Top -->
                     <div class="w-full flex items-center justify-between mb-4">
                         <span class="badge-red text-[13px] uppercase tracking-wider">Deep Work</span>
@@ -346,7 +349,7 @@ const matrixConfig = {
                     <button
                         v-if="doFirst.length > 1"
                         @click="prevSlide(); restartAutoPlay()"
-                        class="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition"
+                        class="absolute left-1 sm:left-3 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition"
                     >
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
@@ -354,8 +357,8 @@ const matrixConfig = {
                     </button>
 
                     <!-- Content -->
-                    <div class="my-auto py-4 max-w-sm">
-                        <h2 class="text-xl font-bold text-gray-900 leading-snug mb-2">
+                    <div class="my-auto py-4 w-full">
+                        <h2 class="text-lg sm:text-xl font-bold text-gray-900 leading-snug mb-2 break-words">
                             {{ currentTask ? currentTask.title : 'Tidak ada task' }}
                         </h2>
                         <p class="text-gray-500 text-[15px] leading-relaxed">
@@ -367,7 +370,7 @@ const matrixConfig = {
                     <button
                         v-if="doFirst.length > 1"
                         @click="nextSlide(); restartAutoPlay()"
-                        class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition"
+                        class="absolute right-1 sm:right-3 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition"
                     >
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
@@ -378,7 +381,7 @@ const matrixConfig = {
                     <div class="w-full mt-4">
                         <Link
                             :href="currentTask ? `/focus/session?task_id=${currentTask.id}` : '/focus/session'"
-                            class="btn-primary btn-md w-full justify-center"
+                            class="btn-primary btn-sm sm:btn-md w-full justify-center"
                         >
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 3l14 9-14 9V3z" />
@@ -404,7 +407,7 @@ const matrixConfig = {
 
             <!-- Right: Matrix -->
             <div class="lg:col-span-6">
-                <div class="flex items-center gap-2 mb-3">
+                <div class="flex items-center gap-2 mb-2 sm:mb-3">
                     <span class="section-title">Action Matrix</span>
                 </div>
 
@@ -413,13 +416,13 @@ const matrixConfig = {
                         v-for="(tasks, key) in { do_first: doFirst, schedule: schedule, delegate: delegate, drop: drop }"
                         :key="key"
                         :class="[
-                            'card p-4 min-h-[180px] flex flex-col',
+                            'card p-2.5 sm:p-4 min-h-[120px] sm:min-h-[180px] flex flex-col overflow-hidden',
                             matrixConfig[key].bgClass,
                             matrixConfig[key].borderClass,
                         ]"
                     >
                         <!-- Header -->
-                        <div class="flex items-center justify-between mb-3">
+<div class="flex items-center justify-between mb-2 sm:mb-3">
                             <span :class="['text-[13px] font-bold', matrixConfig[key].textClass]">
                                 {{ matrixConfig[key].label }}
                             </span>
@@ -452,7 +455,7 @@ const matrixConfig = {
                         </div>
 
                         <!-- Tasks -->
-                        <ul v-if="tasks.length > 0" class="space-y-1.5 flex-1 max-h-[240px] overflow-y-auto scroll-hidden relative">
+                        <ul v-if="tasks.length > 0" class="space-y-1.5 flex-1 max-h-[240px] overflow-y-auto overflow-x-hidden scroll-hidden relative">
                             <li
                                 v-for="item in tasks"
                                 :key="item.id"
@@ -465,7 +468,7 @@ const matrixConfig = {
                                 ]"
                             >
                                 <!-- Task row -->
-                                <div class="flex items-center justify-between gap-2 group text-[15px]">
+                                <div class="flex items-center justify-between gap-2 group text-[13px] sm:text-[15px]">
                                     <!-- Left: expand icon + title -->
                                     <div class="flex items-center gap-2 flex-1 min-w-0">
                                         <button
@@ -490,29 +493,31 @@ const matrixConfig = {
                                     </div>
 
                                     <!-- Right: progress + actions -->
-                                    <div class="flex items-center gap-1 shrink-0">
-                                        <!-- Add to Hari Ini -->
-                                        <button
-                                            @click.stop="addToToday('Task', item.id)"
-                                            class="w-7 h-7 flex items-center justify-center rounded-md text-gray-300 hover:text-emerald-500 hover:bg-emerald-50 transition"
-                                            title="Tambah ke Hari Ini"
-                                        >
-                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
-                                        </button>
-                                        <!-- Progress badge -->
-                                        <span
-                                            v-if="canHaveSubTasks(key) && item.sub_tasks && item.sub_tasks.length > 0"
-                                            :class="[
-                                                'text-[11px] font-semibold px-1.5 py-0.5 rounded-full',
-                                                item.progress === 100 ? 'bg-emerald-100 text-emerald-600' :
-                                                item.progress > 0 ? 'bg-blue-100 text-blue-600' :
-                                                'bg-gray-100 text-gray-500'
-                                            ]"
-                                        >
-                                            {{ item.sub_tasks.filter(s => s.is_completed).length }}/{{ item.sub_tasks.length }}
-                                        </span>
+                                    <div class="flex items-center gap-1">
+                                        <div class="hidden lg:flex items-center gap-1">
+                                            <!-- Add to Hari Ini -->
+                                            <button
+                                                @click.stop="addToToday('Task', item.id)"
+                                                class="w-7 h-7 flex items-center justify-center rounded-md text-gray-300 hover:text-emerald-500 hover:bg-emerald-50 transition"
+                                                title="Tambah ke Hari Ini"
+                                            >
+                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                            </button>
+                                            <!-- Progress badge -->
+                                            <span
+                                                v-if="canHaveSubTasks(key) && item.sub_tasks && item.sub_tasks.length > 0"
+                                                :class="[
+                                                    'text-[11px] font-semibold px-1.5 py-0.5 rounded-full',
+                                                    item.progress === 100 ? 'bg-emerald-100 text-emerald-600' :
+                                                    item.progress > 0 ? 'bg-blue-100 text-blue-600' :
+                                                    'bg-gray-100 text-gray-500'
+                                                ]"
+                                            >
+                                                {{ item.sub_tasks.filter(s => s.is_completed).length }}/{{ item.sub_tasks.length }}
+                                            </span>
+                                        </div>
                                         <!-- Sub-task button -->
                                         <button
                                             v-if="canHaveSubTasks(key)"
