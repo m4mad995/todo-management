@@ -1,7 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, usePage, Link, router } from '@inertiajs/vue3';
-import { computed, ref, watch, onBeforeUnmount, nextTick } from 'vue';
+import { computed, ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 
 const props = defineProps({
     unprocessedTasks: { type: Array, default: () => [] },
@@ -66,8 +66,16 @@ watch(() => props.doFirst.length, (newLength) => {
     startAutoPlay();
 }, { immediate: true });
 
+onMounted(() => {
+    document.addEventListener('click', closeActionMenu);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeActionMenu();
+    });
+});
+
 onBeforeUnmount(() => {
     stopAutoPlay();
+    document.removeEventListener('click', closeActionMenu);
 });
 
 const currentTask = computed(() => {
@@ -119,6 +127,47 @@ const submitDirectAdd = (matrixName) => {
 
 const assignMatrix = (taskId, matrixName) => {
     router.patch(`/tasks/${taskId}`, { matrix: matrixName });
+};
+
+// Action menu (replaces individual action buttons)
+const openActionMenu = ref(null);
+const contextMenuPos = ref({ x: null, y: null });
+const activeSubmenu = ref(null);
+const showQuadrantPicker = ref(null);
+
+const toggleActionMenu = (taskId) => {
+    contextMenuPos.value = { x: null, y: null };
+    activeSubmenu.value = null;
+    showQuadrantPicker.value = null;
+    openActionMenu.value = openActionMenu.value === taskId ? null : taskId;
+};
+
+const openContextMenu = (event, taskId) => {
+    event.preventDefault();
+    activeSubmenu.value = null;
+    contextMenuPos.value = { x: event.clientX, y: event.clientY };
+    openActionMenu.value = taskId;
+};
+
+const closeActionMenu = () => {
+    openActionMenu.value = null;
+    contextMenuPos.value = { x: null, y: null };
+    activeSubmenu.value = null;
+    showQuadrantPicker.value = null;
+};
+
+const openQuadrantPicker = (taskId) => {
+    showQuadrantPicker.value = taskId;
+};
+
+const closeQuadrantPicker = () => {
+    showQuadrantPicker.value = null;
+};
+
+const moveToQuadrant = (taskId, newMatrix) => {
+    router.patch(`/tasks/${taskId}`, { matrix: newMatrix });
+    showQuadrantPicker.value = null;
+    closeActionMenu();
 };
 
 const completeTask = (taskId) => {
@@ -455,10 +504,11 @@ const matrixConfig = {
                         </div>
 
                         <!-- Tasks -->
-                        <ul v-if="tasks.length > 0" class="space-y-1.5 flex-1 max-h-[240px] overflow-y-auto overflow-x-hidden scroll-hidden relative">
+                        <ul v-if="tasks.length > 0" @click="closeActionMenu" class="space-y-1.5 flex-1 max-h-[240px] overflow-y-auto overflow-x-hidden scroll-hidden relative">
                             <li
                                 v-for="item in tasks"
                                 :key="item.id"
+                                @contextmenu.prevent="openContextMenu($event, item.id)"
                                 :class="[
                                     'rounded-md px-2 py-1.5 -mx-2 transition',
                                     key === 'do_first' ? 'hover:bg-red-100/50' :
@@ -492,70 +542,133 @@ const matrixConfig = {
                                         </span>
                                     </div>
 
-                                    <!-- Right: progress + actions -->
+                                    <!-- Right: progress + menu -->
                                     <div class="flex items-center gap-1">
-                                        <div class="hidden lg:flex items-center gap-1">
-                                            <!-- Add to Hari Ini -->
+                                        <!-- Progress badge -->
+                                        <span
+                                            v-if="canHaveSubTasks(key) && item.sub_tasks && item.sub_tasks.length > 0"
+                                            :class="[
+                                                'text-[11px] font-semibold px-1.5 py-0.5 rounded-full shrink-0',
+                                                item.progress === 100 ? 'bg-emerald-100 text-emerald-600' :
+                                                item.progress > 0 ? 'bg-blue-100 text-blue-600' :
+                                                'bg-gray-100 text-gray-500'
+                                            ]"
+                                        >
+                                            {{ item.sub_tasks.filter(s => s.is_completed).length }}/{{ item.sub_tasks.length }}
+                                        </span>
+                                        <!-- Action menu (⋯) -->
+                                        <div class="relative">
                                             <button
-                                                @click.stop="addToToday('Task', item.id)"
-                                                class="w-7 h-7 flex items-center justify-center rounded-md text-gray-300 hover:text-emerald-500 hover:bg-emerald-50 transition"
-                                                title="Tambah ke Hari Ini"
+                                                @click.stop="toggleActionMenu(item.id)"
+                                                class="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition lg:opacity-0 lg:group-hover:opacity-100"
+                                                title="Aksi lainnya"
                                             >
-                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                                                 </svg>
                                             </button>
-                                            <!-- Progress badge -->
-                                            <span
-                                                v-if="canHaveSubTasks(key) && item.sub_tasks && item.sub_tasks.length > 0"
-                                                :class="[
-                                                    'text-[11px] font-semibold px-1.5 py-0.5 rounded-full',
-                                                    item.progress === 100 ? 'bg-emerald-100 text-emerald-600' :
-                                                    item.progress > 0 ? 'bg-blue-100 text-blue-600' :
-                                                    'bg-gray-100 text-gray-500'
-                                                ]"
+                                            <!-- Dropdown menu -->
+                                            <div
+                                                v-if="openActionMenu === item.id"
+                                                :style="contextMenuPos.x !== null ? { position: 'fixed', top: contextMenuPos.y + 'px', left: contextMenuPos.x + 'px' } : {}"
+                                                :class="contextMenuPos.x !== null ? '' : 'absolute right-0 top-full mt-1'"
+                                                class="bg-surface rounded-lg shadow-elevated border border-border z-30 py-1 min-w-[180px] animate-fade-in"
+                                                @click.stop
                                             >
-                                                {{ item.sub_tasks.filter(s => s.is_completed).length }}/{{ item.sub_tasks.length }}
-                                            </span>
+                                                <!-- Quadrant picker mode -->
+                                                <template v-if="showQuadrantPicker === item.id">
+                                                    <button
+                                                        @click="closeQuadrantPicker()"
+                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 transition text-left"
+                                                    >
+                                                        <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                                                        </svg>
+                                                        Kembali
+                                                    </button>
+                                                    <div class="border-t border-gray-100 my-1"></div>
+                                                    <button
+                                                        @click="moveToQuadrant(item.id, null)"
+                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 transition text-left"
+                                                    >
+                                                        <span class="w-2.5 h-2.5 rounded-full bg-gray-300 shrink-0"></span>
+                                                        Inbox
+                                                    </button>
+                                                    <button
+                                                        v-for="(config, matrix) in matrixConfig"
+                                                        :key="matrix"
+                                                        @click="moveToQuadrant(item.id, matrix)"
+                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 transition text-left"
+                                                    >
+                                                        <span :class="['w-2.5 h-2.5 rounded-full shrink-0', config.iconBg]"></span>
+                                                        {{ config.label }}
+                                                    </button>
+                                                </template>
+                                                <!-- Normal menu mode -->
+                                                <template v-else>
+                                                    <button
+                                                        @click="addToToday('Task', item.id); closeActionMenu()"
+                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 transition text-left"
+                                                    >
+                                                        <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                        </svg>
+                                                        Tambah ke Hari Ini
+                                                    </button>
+                                                    <button
+                                                        v-if="canHaveSubTasks(key)"
+                                                        @click="toggleSubTaskInput(item.id); closeActionMenu()"
+                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 transition text-left"
+                                                    >
+                                                        <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                                                        </svg>
+                                                        Tambah Sub-task
+                                                    </button>
+                                                    <div class="border-t border-gray-100 my-1"></div>
+                                                    <button
+                                                        @click="openQuadrantPicker(item.id)"
+                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 transition text-left"
+                                                    >
+                                                        <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                                                        </svg>
+                                                        Pindah Kuadran
+                                                    </button>
+                                                    <button
+                                                        @click="completeTask(item.id); closeActionMenu()"
+                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 transition text-left"
+                                                    >
+                                                        <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                        Tandai Selesai
+                                                    </button>
+                                                    <button
+                                                        v-if="key !== 'drop'"
+                                                        @click="closeActionMenu(); router.visit(`/focus/session?task_id=${item.id}`)"
+                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 transition text-left"
+                                                    >
+                                                        <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 3l14 9-14 9V3z" />
+                                                        </svg>
+                                                        Mulai Sesi Fokus
+                                                    </button>
+                                                    <div class="border-t border-gray-100 my-1"></div>
+                                                    <button
+                                                        @click="deleteTask(item.id); closeActionMenu()"
+                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-red-500 hover:bg-red-50 transition text-left"
+                                                    >
+                                                        <svg class="w-4 h-4 text-red-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                        Hapus
+                                                    </button>
+                                                </template>
+                                            </div>
                                         </div>
-                                        <!-- Sub-task button -->
-                                        <button
-                                            v-if="canHaveSubTasks(key)"
-                                            @click.stop="toggleSubTaskInput(item.id)"
-                                            class="w-7 h-7 flex items-center justify-center rounded-md text-gray-300 hover:text-violet-500 hover:bg-violet-50 transition"
-                                            title="Tambah sub-task"
-                                        >
-                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                                            </svg>
-                                        </button>
-                                        <button
-                                            @click="completeTask(item.id)"
-                                            class="w-7 h-7 flex items-center justify-center rounded-md text-gray-300 hover:text-emerald-500 hover:bg-emerald-50 transition"
-                                            title="Tandai selesai"
-                                        >
-                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                            </svg>
-                                        </button>
-                                        <Link
-                                            v-if="key !== 'drop'"
-                                            :href="`/focus/session?task_id=${item.id}`"
-                                            class="w-7 h-7 flex items-center justify-center rounded-md text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition"
-                                        >
-                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 3l14 9-14 9V3z" />
-                                            </svg>
-                                        </Link>
-                                        <button @click="deleteTask(item.id)" class="w-7 h-7 flex items-center justify-center rounded-md text-gray-300 hover:text-red-500 hover:bg-red-50 transition">
-                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
                                     </div>
                                 </div>
-
-                                <!-- Sub-task input -->
                                 <div
                                     v-if="showSubTaskInput === item.id"
                                     class="mt-2 ml-7 animate-fade-in"
