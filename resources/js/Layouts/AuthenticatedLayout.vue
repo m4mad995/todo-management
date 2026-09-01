@@ -7,6 +7,7 @@ const isQuickModalOpen = ref(false);
 const topbarInput = ref('');
 const page = usePage();
 const showMobileMenu = ref(false);
+const showUserDropdown = ref(false);
 
 const quickForm = useForm({
     type: 'focus',
@@ -110,6 +111,18 @@ const userName = () => {
     const name = page.props.auth?.user?.name || 'User';
     return name.split(' ')[0];
 };
+
+const closeUserDropdown = () => {
+    showUserDropdown.value = false;
+};
+
+onMounted(() => {
+    document.addEventListener('click', closeUserDropdown);
+});
+
+onUnmounted(() => {
+    document.removeEventListener('click', closeUserDropdown);
+});
 </script>
 
 <template>
@@ -186,7 +199,7 @@ const userName = () => {
         <div class="flex-1 lg:ml-60 flex flex-col min-h-screen w-full">
 
             <!-- TOPBAR -->
-            <header class="h-14 bg-canvas/80 backdrop-blur-sm px-4 md:px-6 flex items-center justify-between sticky top-0 z-10 border-b border-transparent overflow-hidden">
+            <header class="h-14 bg-canvas/80 backdrop-blur-sm px-4 md:px-6 flex items-center justify-between sticky top-0 z-10 border-b border-transparent overflow-visible">
                 <div v-if="!isDashboard" class="w-[70%] shrink">
                     <form @submit.prevent="handleTopbarSubmit" class="relative flex items-center">
                         <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -206,12 +219,49 @@ const userName = () => {
                 <div v-else></div>
 
                 <div class="flex items-center gap-3">
-                    <!-- User -->
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">
-                            {{ $page.props.auth?.user?.name?.charAt(0) || 'U' }}
+                    <!-- User dropdown -->
+                    <div class="relative">
+                        <button
+                            @click.stop="showUserDropdown = !showUserDropdown"
+                            class="flex items-center gap-2.5 p-1 -m-1 rounded-lg hover:bg-gray-100 transition"
+                        >
+                            <div class="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">
+                                {{ $page.props.auth?.user?.name?.charAt(0) || 'U' }}
+                            </div>
+                            <span class="text-[15px] font-medium text-gray-600 hidden sm:block">{{ userName() }}</span>
+                        </button>
+                        <!-- Dropdown -->
+                        <div
+                            v-if="showUserDropdown"
+                            class="absolute right-0 top-full mt-2 w-56 bg-surface rounded-lg shadow-elevated border border-border z-30 py-1 animate-fade-in"
+                            @click.stop
+                        >
+                            <div class="px-4 py-3 border-b border-gray-100">
+                                <p class="text-sm font-semibold text-gray-900">{{ $page.props.auth?.user?.name || 'User' }}</p>
+                                <p class="text-xs text-gray-500 truncate">{{ $page.props.auth?.user?.email || '' }}</p>
+                            </div>
+                            <Link
+                                href="/profile"
+                                class="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition"
+                                @click="showUserDropdown = false"
+                            >
+                                <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                Profile
+                            </Link>
+                            <div class="border-t border-gray-100 my-1"></div>
+                            <button
+                                @click="router.post(route('logout'))"
+                                class="flex items-center gap-2.5 w-full px-4 py-2 text-sm text-red-500 hover:bg-red-50 transition text-left"
+                            >
+                                <svg class="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                Keluar
+                            </button>
                         </div>
-                        <span class="text-[15px] font-medium text-gray-600 hidden sm:block">{{ userName() }}</span>
                     </div>
                 </div>
             </header>

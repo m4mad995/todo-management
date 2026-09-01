@@ -19,36 +19,30 @@ defineProps({
     <Head title="Profile" />
 
     <AuthenticatedLayout>
-        <template #header>
-            <h2
-                class="text-xl font-semibold leading-tight text-gray-800"
-            >
-                Profile
-            </h2>
-        </template>
+        <div class="py-6 sm:py-10">
+            <div class="mx-auto max-w-2xl space-y-6 px-4 sm:px-6">
+                <!-- Header -->
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Profile</h1>
+                    <p class="text-sm text-gray-500 mt-1">Kelola informasi akun dan pengaturan Anda.</p>
+                </div>
 
-        <div class="py-12">
-            <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-                <div
-                    class="bg-white p-4 shadow sm:rounded-lg sm:p-8"
-                >
+                <!-- Profile Information -->
+                <div class="card p-6">
                     <UpdateProfileInformationForm
                         :must-verify-email="mustVerifyEmail"
                         :status="status"
-                        class="max-w-xl"
                     />
                 </div>
 
-                <div
-                    class="bg-white p-4 shadow sm:rounded-lg sm:p-8"
-                >
-                    <UpdatePasswordForm class="max-w-xl" />
+                <!-- Update Password -->
+                <div class="card p-6">
+                    <UpdatePasswordForm />
                 </div>
 
-                <div
-                    class="bg-white p-4 shadow sm:rounded-lg sm:p-8"
-                >
-                    <DeleteUserForm class="max-w-xl" />
+                <!-- Delete Account -->
+                <div class="card p-6">
+                    <DeleteUserForm />
                 </div>
             </div>
         </div>
