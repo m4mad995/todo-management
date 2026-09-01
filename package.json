@@ -24,6 +24,7 @@
     },
     "dependencies": {
         "chart.js": "^4.5.1",
-        "vue-chartjs": "^5.3.4"
+        "vue-chartjs": "^5.3.4",
+        "vuedraggable": "^4.1.0"
     }
 }

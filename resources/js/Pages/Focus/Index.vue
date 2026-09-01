@@ -2,6 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, usePage, Link, router } from '@inertiajs/vue3';
 import { computed, ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import draggable from 'vuedraggable';
 
 const props = defineProps({
     unprocessedTasks: { type: Array, default: () => [] },
@@ -162,6 +163,15 @@ const openQuadrantPicker = (taskId) => {
 
 const closeQuadrantPicker = () => {
     showQuadrantPicker.value = null;
+};
+
+// Drag & drop handler
+const onDragChange = (event, targetKey) => {
+    if (event.added) {
+        const taskId = event.added.element.id;
+        const newMatrix = targetKey === 'unprocessed' ? null : targetKey;
+        router.patch(`/tasks/${taskId}`, { matrix: newMatrix });
+    }
 };
 
 const moveToQuadrant = (taskId, newMatrix) => {
@@ -329,12 +339,20 @@ const matrixConfig = {
                 <span class="text-xs text-gray-400 hidden sm:inline">Klik kategori untuk memindahkan</span>
             </div>
 
-            <div class="space-y-1.5 max-h-[200px] sm:max-h-[320px] overflow-y-auto overflow-x-hidden scroll-hidden relative">
-                <div
-                    v-for="task in unprocessedTasks"
-                    :key="task.id"
-                    class="flex items-center justify-between p-2.5 rounded-btn hover:bg-gray-50 transition group"
-                >
+            <draggable
+                :list="unprocessedTasks"
+                group="tasks"
+                item-key="id"
+                :animation="200"
+                ghost-class="opacity-30"
+                chosen-class="shadow-lg"
+                class="space-y-1.5 max-h-[200px] sm:max-h-[320px] overflow-y-auto overflow-x-hidden scroll-hidden relative"
+                @change="(evt) => onDragChange(evt, 'unprocessed')"
+            >
+                <template #item="{ element: task }">
+                    <div
+                        class="flex items-center justify-between p-2.5 rounded-btn hover:bg-gray-50 transition group"
+                    >
                     <span class="text-[15px] text-gray-700 truncate pr-4" :title="task.title">{{ task.title }}</span>
 
                     <div class="flex items-center gap-1">
@@ -366,9 +384,12 @@ const matrixConfig = {
                         </button>
                     </div>
                 </div>
-                <div v-if="unprocessedTasks.length > 5"
-                     class="sticky bottom-0 h-8 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none" />
-            </div>
+                </template>
+                <template #footer>
+                    <div v-if="unprocessedTasks.length > 5"
+                         class="sticky bottom-0 h-8 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none" />
+                </template>
+            </draggable>
         </div>
 
         <!-- Main Grid -->
@@ -504,9 +525,20 @@ const matrixConfig = {
                         </div>
 
                         <!-- Tasks -->
-                        <ul v-if="tasks.length > 0" @click="closeActionMenu" class="space-y-1.5 flex-1 max-h-[240px] overflow-y-auto overflow-x-hidden scroll-hidden relative">
+                        <draggable
+                            v-if="tasks.length > 0"
+                            :list="tasks"
+                            group="tasks"
+                            item-key="id"
+                            :animation="200"
+                            ghost-class="opacity-30"
+                            chosen-class="shadow-lg"
+                            class="space-y-1.5 flex-1 max-h-[240px] overflow-y-auto overflow-x-hidden scroll-hidden relative"
+                            @click="closeActionMenu"
+                            @change="(evt) => onDragChange(evt, key)"
+                        >
+                            <template #item="{ element: item }">
                             <li
-                                v-for="item in tasks"
                                 :key="item.id"
                                 @contextmenu.prevent="openContextMenu($event, item.id)"
                                 :class="[
@@ -763,7 +795,9 @@ const matrixConfig = {
                                     </div>
                                 </div>
                             </li>
-                            <li v-if="tasks.length > 5"
+                            </template>
+                            <template #footer>
+                            <div v-if="tasks.length > 5"
                                 class="sticky bottom-0 h-6 pointer-events-none"
                                 :class="{
                                     'bg-gradient-to-t from-red-50 to-transparent': key === 'do_first',
@@ -771,7 +805,8 @@ const matrixConfig = {
                                     'bg-gradient-to-t from-amber-50 to-transparent': key === 'delegate',
                                     'bg-gradient-to-t from-gray-50 to-transparent': key === 'drop'
                                 }" />
-                        </ul>
+                            </template>
+                        </draggable>
                         <p v-else class="text-[13px] text-gray-400 italic mt-1">Belum ada task</p>
                     </div>
                 </div>
