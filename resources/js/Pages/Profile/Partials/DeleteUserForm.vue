@@ -34,7 +34,7 @@ const closeModal = () => {
 <template>
     <section>
         <header>
-            <h2 class="text-lg font-bold text-gray-900">Hapus Akun</h2>
+            <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100">Hapus Akun</h2>
             <p class="text-sm text-gray-500 mt-1">Setelah akun dihapus, semua data akan dihapus secara permanen. Pastikan Anda sudah menyimpan data yang diperlukan.</p>
         </header>
 

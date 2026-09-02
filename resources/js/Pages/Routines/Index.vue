@@ -163,8 +163,8 @@ const freqLabel = (routine) => {
         <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Rutinitas & Kebiasaan</h1>
-                <p class="text-gray-500 mt-0.5 text-[15px]">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">Rutinitas & Kebiasaan</h1>
+                <p class="text-gray-500 dark:text-gray-400 mt-0.5 text-[15px]">
                     Jaga konsistensi dengan kebiasaan harianmu.
                 </p>
             </div>
@@ -179,13 +179,13 @@ const freqLabel = (routine) => {
 
         <!-- Empty State -->
         <div v-if="routines.length === 0" class="card p-10 text-center">
-            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
-                <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <div class="w-12 h-12 rounded-full bg-gray-100 dark:bg-slate-700 flex items-center justify-center mx-auto mb-3">
+                <svg class="w-6 h-6 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
             </div>
-            <p class="text-[15px] text-gray-500 mb-1">Belum ada rutinitas.</p>
-            <p class="text-sm text-gray-400">Klik <strong>Rutinitas Baru</strong> untuk memulai.</p>
+            <p class="text-[15px] text-gray-500 dark:text-gray-400 mb-1">Belum ada rutinitas.</p>
+            <p class="text-sm text-gray-400 dark:text-gray-500">Klik <strong>Rutinitas Baru</strong> untuk memulai.</p>
         </div>
 
         <template v-else>
@@ -197,7 +197,7 @@ const freqLabel = (routine) => {
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                         </svg>
                     </div>
-                    <h2 class="text-[15px] font-bold text-gray-800">Hari Ini</h2>
+                    <h2 class="text-[15px] font-bold text-gray-800 dark:text-gray-200">Hari Ini</h2>
                     <span v-if="todayRoutines.length > 0" class="text-[11px] text-violet-500 font-semibold">
                         {{ todayCompletedCount }}/{{ todayRoutines.length }} selesai
                     </span>
@@ -209,7 +209,7 @@ const freqLabel = (routine) => {
                         :key="item.id"
                         :class="[
                             'card p-3 flex items-center gap-3 transition',
-                            isCompletedToday(item) ? 'bg-emerald-50/50 border-emerald-200' : 'bg-white'
+                            isCompletedToday(item) ? 'bg-emerald-50/50 border-emerald-200' : 'bg-white dark:bg-slate-800'
                         ]"
                     >
                         <button
@@ -218,7 +218,7 @@ const freqLabel = (routine) => {
                                 'w-5 h-5 rounded-md border-2 flex items-center justify-center transition shrink-0',
                                 isCompletedToday(item)
                                     ? 'bg-emerald-500 border-emerald-500 text-white'
-                                    : 'border-gray-300 text-transparent hover:border-emerald-400'
+                                    : 'border-gray-300 dark:border-slate-600 text-transparent hover:border-emerald-400'
                             ]"
                         >
                             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
@@ -229,38 +229,38 @@ const freqLabel = (routine) => {
                             <p
                                 :class="[
                                     'text-[14px] font-medium truncate',
-                                    isCompletedToday(item) ? 'line-through text-gray-400' : 'text-gray-800'
+                                    isCompletedToday(item) ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-800 dark:text-gray-200'
                                 ]"
                             >
                                 {{ item.title }}
                             </p>
-                            <p class="text-[11px] text-gray-400">{{ freqLabel(item) }}</p>
+                            <p class="text-[11px] text-gray-400 dark:text-gray-500">{{ freqLabel(item) }}</p>
                         </div>
                         <div class="flex items-center gap-0.5 shrink-0">
-                            <button @click="openModal(item)" class="text-gray-400 hover:text-blue-600 text-xs font-medium px-1.5 py-0.5 transition">
+                            <button @click="openModal(item)" class="text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 text-xs font-medium px-1.5 py-0.5 transition">
                                 Edit
                             </button>
-                            <button @click="confirmDelete(item.id)" class="text-gray-400 hover:text-red-500 text-xs font-medium px-1.5 py-0.5 transition">
+                            <button @click="confirmDelete(item.id)" class="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 text-xs font-medium px-1.5 py-0.5 transition">
                                 Hapus
                             </button>
                         </div>
                     </div>
                 </div>
                 <div v-else class="card p-6 text-center">
-                    <p class="text-[13px] text-gray-400">Tidak ada rutinitas hari ini.</p>
+                    <p class="text-[13px] text-gray-400 dark:text-gray-500">Tidak ada rutinitas hari ini.</p>
                 </div>
             </div>
 
             <!-- Semua Rutinitas -->
             <div>
                 <div class="flex items-center gap-2.5 mb-3">
-                    <div class="w-6 h-6 rounded-md bg-gray-100 flex items-center justify-center shrink-0">
-                        <svg class="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <div class="w-6 h-6 rounded-md bg-gray-100 dark:bg-slate-700 flex items-center justify-center shrink-0">
+                        <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                         </svg>
                     </div>
-                    <h2 class="text-[15px] font-bold text-gray-800">Semua Rutinitas</h2>
-                    <span class="text-[11px] text-gray-400 font-semibold">{{ routines.length }} total</span>
+                    <h2 class="text-[15px] font-bold text-gray-800 dark:text-gray-200">Semua Rutinitas</h2>
+                    <span class="text-[11px] text-gray-400 dark:text-gray-500 font-semibold">{{ routines.length }} total</span>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -282,7 +282,7 @@ const freqLabel = (routine) => {
                                             'w-5 h-5 rounded-md border-2 flex items-center justify-center transition shrink-0',
                                             isCompletedToday(item)
                                                 ? 'bg-emerald-500 border-emerald-500 text-white'
-                                                : 'border-gray-300 text-transparent hover:border-emerald-400'
+                                                : 'border-gray-300 dark:border-slate-600 text-transparent hover:border-emerald-400'
                                         ]"
                                     >
                                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
@@ -292,7 +292,7 @@ const freqLabel = (routine) => {
                                     <h3
                                         :class="[
                                             'font-semibold text-[15px] truncate',
-                                            isCompletedToday(item) ? 'line-through text-gray-400' : 'text-gray-800'
+                                            isCompletedToday(item) ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-800 dark:text-gray-200'
                                         ]"
                                     >
                                         {{ item.title }}
@@ -300,23 +300,23 @@ const freqLabel = (routine) => {
                                 </div>
 
                                 <div class="flex items-center gap-0.5 shrink-0">
-                                    <button @click="openModal(item)" class="text-gray-400 hover:text-blue-600 text-xs font-medium px-1.5 py-0.5 transition">
+                                    <button @click="openModal(item)" class="text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 text-xs font-medium px-1.5 py-0.5 transition">
                                         Edit
                                     </button>
-                                    <button @click="confirmDelete(item.id)" class="text-gray-400 hover:text-red-500 text-xs font-medium px-1.5 py-0.5 transition">
+                                    <button @click="confirmDelete(item.id)" class="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 text-xs font-medium px-1.5 py-0.5 transition">
                                         Hapus
                                     </button>
                                 </div>
                             </div>
 
-                            <p v-if="item.notes" class="text-[13px] text-gray-500 mt-2 bg-gray-50 p-2.5 rounded-btn whitespace-pre-line border border-gray-100">
+                            <p v-if="item.notes" class="text-[13px] text-gray-500 dark:text-gray-400 mt-2 bg-gray-50 dark:bg-slate-800 p-2.5 rounded-btn whitespace-pre-line border border-gray-100 dark:border-slate-700">
                                 {{ item.notes }}
                             </p>
                         </div>
 
                         <!-- Footer -->
-                        <div class="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between text-xs">
-                            <span class="text-gray-400 font-medium">Ulangi:</span>
+                        <div class="mt-3 pt-2.5 border-t border-gray-100 dark:border-slate-700 flex items-center justify-between text-xs">
+                            <span class="text-gray-400 dark:text-gray-500 font-medium">Ulangi:</span>
                             <span v-if="item.is_everyday" class="font-semibold text-emerald-600">
                                 Setiap Hari
                             </span>
@@ -326,13 +326,13 @@ const freqLabel = (routine) => {
                                     :key="d.val"
                                     :class="[
                                         'w-5 h-5 rounded-md flex items-center justify-center font-bold text-[10px]',
-                                        item.days_of_week.includes(d.val) ? 'bg-blue-100 text-blue-700' : 'text-gray-300'
+                                        item.days_of_week.includes(d.val) ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'text-gray-300 dark:text-gray-600'
                                     ]"
                                 >
                                     {{ d.label[0] }}
                                 </span>
                             </div>
-                            <span v-else class="text-gray-400">Sekali saja</span>
+                            <span v-else class="text-gray-400 dark:text-gray-500">Sekali saja</span>
                         </div>
                     </div>
                 </div>
@@ -352,8 +352,8 @@ const freqLabel = (routine) => {
                 <div v-if="showDeleteConfirm" class="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div class="absolute inset-0 bg-gray-900/30 backdrop-blur-sm" @click="cancelDelete"></div>
                     <div class="relative bg-surface rounded-card shadow-elevated border border-border w-full max-w-sm p-5">
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">Hapus Rutinitas?</h3>
-                        <p class="text-[14px] text-gray-500 mb-5">Rutinitas yang dihapus tidak dapat dikembalikan.</p>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Hapus Rutinitas?</h3>
+                        <p class="text-[14px] text-gray-500 dark:text-gray-400 mb-5">Rutinitas yang dihapus tidak dapat dikembalikan.</p>
                         <div class="flex justify-end gap-2">
                             <button @click="cancelDelete" class="btn-ghost btn-sm">Batal</button>
                             <button @click="deleteRoutine" class="bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
@@ -380,7 +380,7 @@ const freqLabel = (routine) => {
 
                     <div class="relative bg-surface rounded-card shadow-elevated border border-border w-full max-w-md animate-slide-up">
                         <div class="p-5">
-                            <h3 class="text-lg font-bold text-gray-900 mb-5">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-5">
                                 {{ editingRoutine ? 'Edit Rutinitas' : 'Rutinitas Baru' }}
                             </h3>
 
@@ -406,19 +406,19 @@ const freqLabel = (routine) => {
                                     ></textarea>
                                 </div>
 
-                                <div class="bg-gray-50 p-4 rounded-card space-y-3">
+                                <div class="bg-gray-50 dark:bg-slate-800 p-4 rounded-card space-y-3">
                                     <div class="flex items-center justify-between">
-                                        <span class="text-xs font-semibold text-gray-700">Setiap Hari</span>
+                                        <span class="text-xs font-semibold text-gray-700 dark:text-gray-300">Setiap Hari</span>
                                         <input
                                             type="checkbox"
                                             v-model="form.is_everyday"
                                             @change="toggleEveryday"
-                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                            class="rounded border-gray-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500"
                                         />
                                     </div>
 
                                     <div>
-                                        <label class="text-xs font-semibold text-gray-500 mb-1.5 block">Atur Hari Spesifik:</label>
+                                        <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 block">Atur Hari Spesifik:</label>
                                         <div class="flex justify-between gap-1">
                                             <button
                                                 v-for="d in dayLabels"
@@ -429,7 +429,7 @@ const freqLabel = (routine) => {
                                                     'flex-1 py-1.5 rounded-md text-xs font-semibold transition-all duration-150',
                                                     form.days_of_week.includes(d.val)
                                                         ? 'bg-blue-600 text-white shadow-sm'
-                                                        : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-100'
+                                                        : 'bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700'
                                                 ]"
                                             >
                                                 {{ d.label }}

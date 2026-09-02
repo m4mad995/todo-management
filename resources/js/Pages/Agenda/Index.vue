@@ -85,8 +85,8 @@ const formatTime = (time) => {
         <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Agenda & Pengingat</h1>
-                <p class="text-gray-500 mt-0.5 text-[15px]">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">Agenda & Pengingat</h1>
+                <p class="text-gray-500 dark:text-gray-400 mt-0.5 text-[15px]">
                     Catat jadwal dan batas waktu pentingmu.
                 </p>
             </div>
@@ -112,7 +112,7 @@ const formatTime = (time) => {
                     <div
                         v-for="item in todayAgendas"
                         :key="item.id"
-                        class="card bg-red-50/30 border-red-200 p-4 flex flex-col justify-between"
+                        class="card bg-red-50/30 dark:bg-red-900/10 border-red-200 dark:border-red-800 p-4 flex flex-col justify-between"
                     >
                         <div>
                             <div class="flex items-start justify-between gap-3 mb-2">
@@ -123,17 +123,17 @@ const formatTime = (time) => {
                                     {{ formatTime(item.event_time) || 'Sepanjang Hari' }}
                                 </span>
                                 <div class="flex items-center gap-1">
-                                    <button @click="openModal(item)" class="text-gray-400 hover:text-blue-600 text-xs font-medium px-1.5 py-0.5 transition">
+                                    <button @click="openModal(item)" class="text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 text-xs font-medium px-1.5 py-0.5 transition">
                                         Edit
                                     </button>
-                                    <button @click="deleteAgenda(item.id)" class="text-gray-400 hover:text-red-500 text-xs font-medium px-1.5 py-0.5 transition">
+                                    <button @click="deleteAgenda(item.id)" class="text-gray-400 dark:text-gray-500 hover:text-red-500 text-xs font-medium px-1.5 py-0.5 transition">
                                         Hapus
                                     </button>
                                 </div>
                             </div>
 
-                            <h3 class="font-semibold text-[15px] text-gray-900 mb-1">{{ item.title }}</h3>
-                            <p v-if="item.notes" class="text-[13px] text-gray-600 whitespace-pre-line bg-white/60 p-2.5 rounded-btn border border-red-100">
+                            <h3 class="font-semibold text-[15px] text-gray-900 dark:text-gray-100 mb-1">{{ item.title }}</h3>
+                            <p v-if="item.notes" class="text-[13px] text-gray-600 dark:text-gray-400 whitespace-pre-line bg-white/60 dark:bg-slate-800/60 p-2.5 rounded-btn border border-red-100">
                                 {{ item.notes }}
                             </p>
                         </div>
@@ -156,7 +156,7 @@ const formatTime = (time) => {
                 </div>
 
                 <div v-if="upcomingAgendas.length === 0" class="card p-8 text-center">
-                    <p class="text-sm text-gray-400">Tidak ada agenda mendatang.</p>
+                    <p class="text-sm text-gray-400 dark:text-gray-500">Tidak ada agenda mendatang.</p>
                 </div>
 
                 <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
@@ -175,17 +175,17 @@ const formatTime = (time) => {
                                     <span v-if="item.event_time" class="ml-1">{{ formatTime(item.event_time) }}</span>
                                 </span>
                                 <div class="flex items-center gap-1">
-                                    <button @click="openModal(item)" class="text-gray-400 hover:text-blue-600 text-[11px] font-medium px-1.5 py-0.5 transition">
+                                    <button @click="openModal(item)" class="text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 text-[11px] font-medium px-1.5 py-0.5 transition">
                                         Edit
                                     </button>
-                                    <button @click="deleteAgenda(item.id)" class="text-gray-400 hover:text-red-500 text-[11px] font-medium px-1.5 py-0.5 transition">
+                                    <button @click="deleteAgenda(item.id)" class="text-gray-400 dark:text-gray-500 hover:text-red-500 text-[11px] font-medium px-1.5 py-0.5 transition">
                                         Hapus
                                     </button>
                                 </div>
                             </div>
 
-                            <h3 class="font-semibold text-[15px] text-gray-800 mb-1">{{ item.title }}</h3>
-                            <p v-if="item.notes" class="text-[13px] text-gray-500 whitespace-pre-line bg-gray-50 p-2.5 rounded-btn">
+                            <h3 class="font-semibold text-[15px] text-gray-800 dark:text-gray-200 mb-1">{{ item.title }}</h3>
+                            <p v-if="item.notes" class="text-[13px] text-gray-500 dark:text-gray-400 whitespace-pre-line bg-gray-50 dark:bg-slate-800 p-2.5 rounded-btn">
                                 {{ item.notes }}
                             </p>
                         </div>
@@ -203,7 +203,7 @@ const formatTime = (time) => {
             <!-- Completed / Past -->
             <section v-if="completedOrPastAgendas.length > 0">
                 <details class="group">
-                    <summary class="cursor-pointer text-xs font-semibold text-gray-500 hover:text-gray-800 flex items-center gap-1.5 select-none transition">
+                    <summary class="cursor-pointer text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 flex items-center gap-1.5 select-none transition">
                         <svg class="w-3.5 h-3.5 transition group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                         </svg>
@@ -214,14 +214,14 @@ const formatTime = (time) => {
                         <div
                             v-for="item in completedOrPastAgendas"
                             :key="item.id"
-                            class="bg-gray-50 border border-gray-200 rounded-card p-3 flex flex-col justify-between opacity-60"
+                            class="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-card p-3 flex flex-col justify-between opacity-60"
                         >
                             <div>
-                                <div class="flex justify-between items-center text-xs text-gray-400 mb-1">
+                                <div class="flex justify-between items-center text-xs text-gray-400 dark:text-gray-500 mb-1">
                                     <span>{{ item.event_date }}</span>
                                     <button @click="deleteAgenda(item.id)" class="hover:text-red-600 font-semibold">Hapus</button>
                                 </div>
-                                <h4 class="font-semibold text-[13px] text-gray-500 line-through">{{ item.title }}</h4>
+                                <h4 class="font-semibold text-[13px] text-gray-500 dark:text-gray-400 line-through">{{ item.title }}</h4>
                             </div>
                             <button
                                 @click="toggleComplete(item)"
@@ -250,7 +250,7 @@ const formatTime = (time) => {
 
                     <div class="relative bg-surface rounded-card shadow-elevated border border-border w-full max-w-md animate-slide-up">
                         <div class="p-5">
-                            <h3 class="text-lg font-bold text-gray-900 mb-5">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-5">
                                 {{ editingAgenda ? 'Edit Agenda' : 'Agenda Baru' }}
                             </h3>
 

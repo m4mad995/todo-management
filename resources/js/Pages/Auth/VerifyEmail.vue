@@ -26,7 +26,7 @@ const verificationLinkSent = computed(
 
         <!-- Header -->
         <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-900 tracking-tight">Verifikasi Email</h2>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">Verifikasi Email</h2>
             <p class="text-gray-500 text-sm mt-1">Terima kasih sudah mendaftar! Sebelum memulai, silakan verifikasi email Anda dengan mengklik link yang kami kirimkan.</p>
         </div>
 

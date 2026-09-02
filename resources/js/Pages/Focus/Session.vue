@@ -183,7 +183,7 @@ const presets = [
             <div v-else class="mb-6"></div>
 
             <!-- Preset Selector -->
-            <div class="flex items-center justify-center gap-1 p-1 bg-gray-100 rounded-btn mb-8 w-fit mx-auto">
+            <div class="flex items-center justify-center gap-1 p-1 bg-gray-100 dark:bg-slate-700 rounded-btn mb-8 w-fit mx-auto">
                 <button
                     v-for="p in presets"
                     :key="p.label"
@@ -191,8 +191,8 @@ const presets = [
                     :class="[
                         'px-3 sm:px-4 py-2 rounded-btn text-sm font-medium transition-all duration-150',
                         presetMode === p.label
-                            ? 'bg-surface text-gray-900 shadow-sm'
-                            : 'text-gray-500 hover:text-gray-700'
+                            ? 'bg-surface dark:bg-slate-800 text-gray-900 dark:text-gray-100 shadow-sm'
+                            : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                     ]"
                 >
                     {{ p.name }}

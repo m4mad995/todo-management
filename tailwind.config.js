@@ -10,6 +10,8 @@ export default {
         './resources/js/**/*.vue',
     ],
 
+    darkMode: 'class',
+
     theme: {
         extend: {
             fontFamily: {
@@ -17,20 +19,23 @@ export default {
                 mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', ...defaultTheme.fontFamily.mono],
             },
             colors: {
-                canvas: '#F8FAFC',
-                surface: '#FFFFFF',
-                border: '#E5E7EB',
+                canvas: 'var(--color-canvas)',
+                surface: 'var(--color-surface)',
+                border: 'var(--color-border)',
                 matrix: {
-                    doFirst: { light: '#FEF2F2', DEFAULT: '#FEE2E2', border: '#FECACA', text: '#DC2626', hover: '#FEE2E2' },
-                    schedule: { light: '#EFF6FF', DEFAULT: '#DBEAFE', border: '#BFDBFE', text: '#2563EB', hover: '#DBEAFE' },
-                    delegate: { light: '#FFFBEB', DEFAULT: '#FEF3C7', border: '#FDE68A', text: '#D97706', hover: '#FEF3C7' },
-                    drop: { light: '#F9FAFB', DEFAULT: '#F3F4F6', border: '#E5E7EB', text: '#6B7280', hover: '#F3F4F6' },
+                    doFirst: { light: 'var(--matrix-doFirst-light)', DEFAULT: 'var(--matrix-doFirst)', border: 'var(--matrix-doFirst-border)', text: 'var(--matrix-doFirst-text)', hover: 'var(--matrix-doFirst-hover)' },
+                    schedule: { light: 'var(--matrix-schedule-light)', DEFAULT: 'var(--matrix-schedule)', border: 'var(--matrix-schedule-border)', text: 'var(--matrix-schedule-text)', hover: 'var(--matrix-schedule-hover)' },
+                    delegate: { light: 'var(--matrix-delegate-light)', DEFAULT: 'var(--matrix-delegate)', border: 'var(--matrix-delegate-border)', text: 'var(--matrix-delegate-text)', hover: 'var(--matrix-delegate-hover)' },
+                    drop: { light: 'var(--matrix-drop-light)', DEFAULT: 'var(--matrix-drop)', border: 'var(--matrix-drop-border)', text: 'var(--matrix-drop-text)', hover: 'var(--matrix-drop-hover)' },
                 },
             },
             boxShadow: {
                 'card': '0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04)',
+                'card-dark': '0 1px 3px 0 rgb(0 0 0 / 0.2), 0 1px 2px -1px rgb(0 0 0 / 0.2)',
                 'card-hover': '0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.06)',
+                'card-hover-dark': '0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3)',
                 'elevated': '0 10px 15px -3px rgb(0 0 0 / 0.06), 0 4px 6px -4px rgb(0 0 0 / 0.06)',
+                'elevated-dark': '0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3)',
             },
             borderRadius: {
                 'card': '10px',

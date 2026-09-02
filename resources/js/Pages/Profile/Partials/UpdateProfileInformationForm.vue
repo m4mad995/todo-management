@@ -12,7 +12,7 @@ const form = useForm({
 <template>
     <section>
         <header>
-            <h2 class="text-lg font-bold text-gray-900">Informasi Profile</h2>
+            <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100">Informasi Profile</h2>
             <p class="text-sm text-gray-500 mt-1">Perbarui informasi profil dan alamat email akun Anda.</p>
         </header>
 

@@ -263,39 +263,39 @@ const addToToday = (type, id) => {
 const matrixConfig = {
     do_first: {
         label: 'Do First',
-        bgClass: 'bg-red-50',
-        borderClass: 'border-red-200',
-        textClass: 'text-red-600',
+        bgClass: 'bg-red-50 dark:bg-red-900/20',
+        borderClass: 'border-red-200 dark:border-red-800',
+        textClass: 'text-red-600 dark:text-red-400',
         badgeClass: 'badge-red',
-        hoverClass: 'hover:bg-red-100',
-        iconBg: 'bg-red-100',
+        hoverClass: 'hover:bg-red-100 dark:hover:bg-red-900/30',
+        iconBg: 'bg-red-100 dark:bg-red-900/30',
     },
     schedule: {
         label: 'Do Next',
-        bgClass: 'bg-blue-50',
-        borderClass: 'border-blue-200',
-        textClass: 'text-blue-600',
+        bgClass: 'bg-blue-50 dark:bg-blue-900/20',
+        borderClass: 'border-blue-200 dark:border-blue-800',
+        textClass: 'text-blue-600 dark:text-blue-400',
         badgeClass: 'badge-blue',
-        hoverClass: 'hover:bg-blue-100',
-        iconBg: 'bg-blue-100',
+        hoverClass: 'hover:bg-blue-100 dark:hover:bg-blue-900/30',
+        iconBg: 'bg-blue-100 dark:bg-blue-900/30',
     },
     delegate: {
         label: 'Hand Off',
-        bgClass: 'bg-amber-50',
-        borderClass: 'border-amber-200',
-        textClass: 'text-amber-600',
+        bgClass: 'bg-amber-50 dark:bg-amber-900/20',
+        borderClass: 'border-amber-200 dark:border-amber-800',
+        textClass: 'text-amber-600 dark:text-amber-400',
         badgeClass: 'badge-amber',
-        hoverClass: 'hover:bg-amber-100',
-        iconBg: 'bg-amber-100',
+        hoverClass: 'hover:bg-amber-100 dark:hover:bg-amber-900/30',
+        iconBg: 'bg-amber-100 dark:bg-amber-900/30',
     },
     drop: {
         label: 'Ignore',
-        bgClass: 'bg-gray-50',
-        borderClass: 'border-gray-200',
-        textClass: 'text-gray-500',
+        bgClass: 'bg-gray-50 dark:bg-slate-800',
+        borderClass: 'border-gray-200 dark:border-slate-600',
+        textClass: 'text-gray-500 dark:text-gray-400',
         badgeClass: 'badge-gray',
-        hoverClass: 'hover:bg-gray-100',
-        iconBg: 'bg-gray-100',
+        hoverClass: 'hover:bg-gray-100 dark:hover:bg-slate-700',
+        iconBg: 'bg-gray-100 dark:bg-slate-700',
     },
 };
 </script>
@@ -306,10 +306,10 @@ const matrixConfig = {
     <AuthenticatedLayout>
         <!-- Greeting -->
         <div class="mb-4 sm:mb-6">
-            <h1 class="text-xl md:text-2xl font-bold text-gray-900 tracking-tight">
+            <h1 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
                 {{ greeting }}, {{ userName }}.
             </h1>
-            <p class="text-gray-500 mt-0.5 text-[13px] sm:text-[15px]">
+            <p class="text-gray-500 dark:text-gray-400 mt-0.5 text-[13px] sm:text-[15px]">
                 Fokus hari ini. Tetap tenang dan tujuan.
             </p>
         </div>
@@ -318,10 +318,10 @@ const matrixConfig = {
         <Link
             v-if="activeTargets.length > 0 || completedTargets.length > 0"
             href="/today"
-            class="flex items-center gap-2.5 px-4 py-3 mb-4 sm:mb-6 rounded-card bg-emerald-50/50 border border-emerald-200 hover:bg-emerald-50 transition"
+            class="flex items-center gap-2.5 px-4 py-3 mb-4 sm:mb-6 rounded-card bg-emerald-50/50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition"
         >
             <span class="badge-emerald">Hari Ini</span>
-            <span class="text-[13px] text-gray-600">
+            <span class="text-[13px] text-gray-600 dark:text-gray-400">
                 {{ activeTargets.length }} target aktif
                 <span v-if="completedTargets.length > 0" class="text-emerald-600">· {{ completedTargets.length }} selesai</span>
             </span>
@@ -333,10 +333,10 @@ const matrixConfig = {
             <div class="flex items-center justify-between mb-2 sm:mb-3">
                 <div class="flex items-center gap-2">
                     <span class="badge-blue">Inbox</span>
-                    <span class="text-[13px] text-gray-400 hidden sm:inline">{{ unprocessedTasks.length }} tugas belum diproses</span>
-                    <span class="text-[13px] text-gray-400 sm:hidden">{{ unprocessedTasks.length }}</span>
+                    <span class="text-[13px] text-gray-400 dark:text-gray-500 hidden sm:inline">{{ unprocessedTasks.length }} tugas belum diproses</span>
+                    <span class="text-[13px] text-gray-400 dark:text-gray-500 sm:hidden">{{ unprocessedTasks.length }}</span>
                 </div>
-                <span class="text-xs text-gray-400 hidden sm:inline">Klik kategori untuk memindahkan</span>
+                <span class="text-xs text-gray-400 dark:text-gray-500 hidden sm:inline">Klik kategori untuk memindahkan</span>
             </div>
 
             <draggable
@@ -351,14 +351,14 @@ const matrixConfig = {
             >
                 <template #item="{ element: task }">
                     <div
-                        class="flex items-center justify-between p-2.5 rounded-btn hover:bg-gray-50 transition group"
+                        class="flex items-center justify-between p-2.5 rounded-btn hover:bg-gray-50 dark:hover:bg-slate-700 dark:bg-slate-800 transition group"
                     >
-                    <span class="text-[15px] text-gray-700 truncate pr-4" :title="task.title">{{ task.title }}</span>
+                    <span class="text-[15px] text-gray-700 dark:text-gray-300 truncate min-w-0 flex-1 pr-4" :title="task.title">{{ task.title }}</span>
 
                     <div class="flex items-center gap-1">
                         <button
                             @click="completeTask(task.id)"
-                            class="w-7 h-7 flex items-center justify-center rounded-md text-gray-300 hover:text-emerald-500 hover:bg-emerald-50 transition"
+                            class="w-7 h-7 flex items-center justify-center rounded-md text-gray-300 dark:text-gray-600 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition"
                             title="Tandai selesai"
                         >
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -379,7 +379,7 @@ const matrixConfig = {
                                 {{ matrixConfig[matrix].label }}
                             </button>
                         </div>
-                        <button @click="deleteTask(task.id)" class="w-7 h-7 flex items-center justify-center rounded-md text-gray-300 hover:text-red-500 hover:bg-red-50 transition text-xs font-bold">
+                        <button @click="deleteTask(task.id)" class="w-7 h-7 flex items-center justify-center rounded-md text-gray-300 dark:text-gray-600 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition text-xs font-bold">
                             x
                         </button>
                     </div>
@@ -387,7 +387,7 @@ const matrixConfig = {
                 </template>
                 <template #footer>
                     <div v-if="unprocessedTasks.length > 5"
-                         class="sticky bottom-0 h-8 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none" />
+                         class="sticky bottom-0 h-8 bg-gradient-to-t from-white dark:from-slate-900 via-white/80 dark:via-slate-900/80 to-transparent pointer-events-none" />
                 </template>
             </draggable>
         </div>
@@ -410,7 +410,7 @@ const matrixConfig = {
                     <!-- Top -->
                     <div class="w-full flex items-center justify-between mb-4">
                         <span class="badge-red text-[13px] uppercase tracking-wider">Deep Work</span>
-                        <span v-if="doFirst.length > 1" class="text-[13px] font-medium text-gray-400">
+                        <span v-if="doFirst.length > 1" class="text-[13px] font-medium text-gray-400 dark:text-gray-500">
                             {{ currentSlide + 1 }} / {{ doFirst.length }}
                         </span>
                     </div>
@@ -419,7 +419,7 @@ const matrixConfig = {
                     <button
                         v-if="doFirst.length > 1"
                         @click="prevSlide(); restartAutoPlay()"
-                        class="absolute left-1 sm:left-3 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition"
+                        class="absolute left-1 sm:left-3 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-500 dark:text-gray-400 flex items-center justify-center transition"
                     >
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
@@ -428,10 +428,10 @@ const matrixConfig = {
 
                     <!-- Content -->
                     <div class="my-auto py-4 w-full">
-                        <h2 class="text-lg sm:text-xl font-bold text-gray-900 leading-snug mb-2 break-words">
+                        <h2 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 leading-snug mb-2 break-words">
                             {{ currentTask ? currentTask.title : 'Tidak ada task' }}
                         </h2>
-                        <p class="text-gray-500 text-[15px] leading-relaxed">
+                        <p class="text-gray-500 dark:text-gray-400 text-[15px] leading-relaxed">
                             {{ currentTask ? `Prioritas #${currentSlide + 1} dari daftar Do First.` : 'Belum ada tugas di Do First.' }}
                         </p>
                     </div>
@@ -440,7 +440,7 @@ const matrixConfig = {
                     <button
                         v-if="doFirst.length > 1"
                         @click="nextSlide(); restartAutoPlay()"
-                        class="absolute right-1 sm:right-3 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition"
+                        class="absolute right-1 sm:right-3 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-500 dark:text-gray-400 flex items-center justify-center transition"
                     >
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
@@ -468,7 +468,7 @@ const matrixConfig = {
                             @click="goToSlide(index)"
                             :class="[
                                 'h-1.5 rounded-full transition-all duration-300',
-                                index === currentSlide ? 'w-5 bg-red-500' : 'w-1.5 bg-gray-200 hover:bg-gray-300'
+                                index === currentSlide ? 'w-5 bg-red-500' : 'w-1.5 bg-gray-200 dark:bg-slate-600 hover:bg-gray-300'
                             ]"
                         ></button>
                     </div>
@@ -543,10 +543,10 @@ const matrixConfig = {
                                 @contextmenu.prevent="openContextMenu($event, item.id)"
                                 :class="[
                                     'rounded-md px-2 py-1.5 -mx-2 transition',
-                                    key === 'do_first' ? 'hover:bg-red-100/50' :
-                                    key === 'schedule' ? 'hover:bg-blue-100/50' :
-                                    key === 'delegate' ? 'hover:bg-amber-100/50' :
-                                    'hover:bg-gray-100/50'
+                                    key === 'do_first' ? 'hover:bg-red-100/50 dark:hover:bg-red-900/20' :
+                                    key === 'schedule' ? 'hover:bg-blue-100/50 dark:hover:bg-blue-900/20' :
+                                    key === 'delegate' ? 'hover:bg-amber-100/50 dark:hover:bg-amber-900/20' :
+                                    'hover:bg-gray-100 dark:hover:bg-slate-700'
                                 ]"
                             >
                                 <!-- Task row -->
@@ -556,7 +556,7 @@ const matrixConfig = {
                                         <button
                                             v-if="canHaveSubTasks(key) && item.sub_tasks && item.sub_tasks.length > 0"
                                             @click="toggleExpand(item.id)"
-                                            class="w-5 h-5 flex items-center justify-center rounded text-gray-400 hover:text-gray-600 transition shrink-0"
+                                            class="w-5 h-5 flex items-center justify-center rounded text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-400 transition shrink-0"
                                         >
                                             <svg
                                                 :class="['w-3 h-3 transition-transform', expandedTask === item.id ? 'rotate-90' : '']"
@@ -567,7 +567,7 @@ const matrixConfig = {
                                         </button>
                                         <span
                                             class="truncate flex-1"
-                                            :class="key === 'drop' ? 'text-gray-400 line-through' : 'text-gray-700'"
+                                            :class="key === 'drop' ? 'text-gray-400 dark:text-gray-500 line-through' : 'text-gray-700 dark:text-gray-300'"
                                             :title="item.title"
                                         >
                                             {{ item.title }}
@@ -581,9 +581,9 @@ const matrixConfig = {
                                             v-if="canHaveSubTasks(key) && item.sub_tasks && item.sub_tasks.length > 0"
                                             :class="[
                                                 'text-[11px] font-semibold px-1.5 py-0.5 rounded-full shrink-0',
-                                                item.progress === 100 ? 'bg-emerald-100 text-emerald-600' :
-                                                item.progress > 0 ? 'bg-blue-100 text-blue-600' :
-                                                'bg-gray-100 text-gray-500'
+                                                item.progress === 100 ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' :
+                                                item.progress > 0 ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' :
+                                                'bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400'
                                             ]"
                                         >
                                             {{ item.sub_tasks.filter(s => s.is_completed).length }}/{{ item.sub_tasks.length }}
@@ -592,7 +592,7 @@ const matrixConfig = {
                                         <div class="relative">
                                             <button
                                                 @click.stop="toggleActionMenu(item.id)"
-                                                class="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition lg:opacity-0 lg:group-hover:opacity-100"
+                                                class="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-700 transition lg:opacity-0 lg:group-hover:opacity-100"
                                                 title="Aksi lainnya"
                                             >
                                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -611,17 +611,17 @@ const matrixConfig = {
                                                 <template v-if="showQuadrantPicker === item.id">
                                                     <button
                                                         @click="closeQuadrantPicker()"
-                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 transition text-left"
+                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 dark:bg-slate-800 transition text-left"
                                                     >
-                                                        <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                                                         </svg>
                                                         Kembali
                                                     </button>
-                                                    <div class="border-t border-gray-100 my-1"></div>
+                                                    <div class="border-t border-gray-100 dark:border-slate-700 my-1"></div>
                                                     <button
                                                         @click="moveToQuadrant(item.id, null)"
-                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 transition text-left"
+                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 dark:bg-slate-800 transition text-left"
                                                     >
                                                         <span class="w-2.5 h-2.5 rounded-full bg-gray-300 shrink-0"></span>
                                                         Inbox
@@ -630,7 +630,7 @@ const matrixConfig = {
                                                         v-for="(config, matrix) in matrixConfig"
                                                         :key="matrix"
                                                         @click="moveToQuadrant(item.id, matrix)"
-                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 transition text-left"
+                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 dark:bg-slate-800 transition text-left"
                                                     >
                                                         <span :class="['w-2.5 h-2.5 rounded-full shrink-0', config.iconBg]"></span>
                                                         {{ config.label }}
@@ -640,9 +640,9 @@ const matrixConfig = {
                                                 <template v-else>
                                                     <button
                                                         @click="addToToday('Task', item.id); closeActionMenu()"
-                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 transition text-left"
+                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 dark:bg-slate-800 transition text-left"
                                                     >
-                                                        <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                         </svg>
                                                         Tambah ke Hari Ini
@@ -650,28 +650,28 @@ const matrixConfig = {
                                                     <button
                                                         v-if="canHaveSubTasks(key)"
                                                         @click="toggleSubTaskInput(item.id); closeActionMenu()"
-                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 transition text-left"
+                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 dark:bg-slate-800 transition text-left"
                                                     >
-                                                        <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                                                         </svg>
                                                         Tambah Sub-task
                                                     </button>
-                                                    <div class="border-t border-gray-100 my-1"></div>
+                                                    <div class="border-t border-gray-100 dark:border-slate-700 my-1"></div>
                                                     <button
                                                         @click="openQuadrantPicker(item.id)"
-                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 transition text-left"
+                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 dark:bg-slate-800 transition text-left"
                                                     >
-                                                        <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
                                                         </svg>
                                                         Pindah Kuadran
                                                     </button>
                                                     <button
                                                         @click="completeTask(item.id); closeActionMenu()"
-                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 transition text-left"
+                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 dark:bg-slate-800 transition text-left"
                                                     >
-                                                        <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                                                         </svg>
                                                         Tandai Selesai
@@ -679,17 +679,17 @@ const matrixConfig = {
                                                     <button
                                                         v-if="key !== 'drop'"
                                                         @click="closeActionMenu(); router.visit(`/focus/session?task_id=${item.id}`)"
-                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 transition text-left"
+                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 dark:bg-slate-800 transition text-left"
                                                     >
-                                                        <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 3l14 9-14 9V3z" />
                                                         </svg>
                                                         Mulai Sesi Fokus
                                                     </button>
-                                                    <div class="border-t border-gray-100 my-1"></div>
+                                                    <div class="border-t border-gray-100 dark:border-slate-700 my-1"></div>
                                                     <button
                                                         @click="deleteTask(item.id); closeActionMenu()"
-                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-red-500 hover:bg-red-50 transition text-left"
+                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition text-left"
                                                     >
                                                         <svg class="w-4 h-4 text-red-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -735,7 +735,7 @@ const matrixConfig = {
                                                 'w-4 h-4 rounded border flex items-center justify-center transition shrink-0',
                                                 sub.is_completed
                                                     ? 'bg-emerald-400 border-emerald-400 text-white'
-                                                    : 'border-gray-300 hover:border-gray-400'
+                                                    : 'border-gray-300 dark:border-slate-600 hover:border-gray-400'
                                             ]"
                                         >
                                             <svg v-if="sub.is_completed" class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
@@ -748,14 +748,14 @@ const matrixConfig = {
                                                 @dblclick="startEditSubTask(sub)"
                                                 :class="[
                                                     'text-[13px] flex-1 cursor-default',
-                                                    sub.is_completed ? 'text-gray-400 line-through' : 'text-gray-600'
+                                                    sub.is_completed ? 'text-gray-400 dark:text-gray-500 line-through' : 'text-gray-600 dark:text-gray-400'
                                                 ]"
                                             >
                                                 {{ sub.title }}
                                             </span>
                                             <button
                                                 @click="addToToday('SubTask', sub.id)"
-                                                class="w-5 h-5 flex items-center justify-center rounded text-gray-300 hover:text-emerald-400 transition opacity-0 group-hover/sub:opacity-100"
+                                                class="w-5 h-5 flex items-center justify-center rounded text-gray-300 dark:text-gray-600 hover:text-emerald-400 transition opacity-0 group-hover/sub:opacity-100"
                                                 title="Tambah ke Hari Ini"
                                             >
                                                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -764,7 +764,7 @@ const matrixConfig = {
                                             </button>
                                             <button
                                                 @click="startEditSubTask(sub)"
-                                                class="w-5 h-5 flex items-center justify-center rounded text-gray-300 hover:text-blue-400 transition opacity-0 group-hover/sub:opacity-100"
+                                                class="w-5 h-5 flex items-center justify-center rounded text-gray-300 dark:text-gray-600 hover:text-blue-400 transition opacity-0 group-hover/sub:opacity-100"
                                                 title="Edit sub-task"
                                             >
                                                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -786,7 +786,7 @@ const matrixConfig = {
                                         </template>
                                         <button
                                             @click="deleteSubTask(sub.id)"
-                                            class="w-5 h-5 flex items-center justify-center rounded text-gray-300 hover:text-red-400 transition opacity-0 group-hover/sub:opacity-100"
+                                            class="w-5 h-5 flex items-center justify-center rounded text-gray-300 dark:text-gray-600 hover:text-red-400 transition opacity-0 group-hover/sub:opacity-100"
                                         >
                                             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -800,14 +800,14 @@ const matrixConfig = {
                             <div v-if="tasks.length > 5"
                                 class="sticky bottom-0 h-6 pointer-events-none"
                                 :class="{
-                                    'bg-gradient-to-t from-red-50 to-transparent': key === 'do_first',
-                                    'bg-gradient-to-t from-blue-50 to-transparent': key === 'schedule',
-                                    'bg-gradient-to-t from-amber-50 to-transparent': key === 'delegate',
-                                    'bg-gradient-to-t from-gray-50 to-transparent': key === 'drop'
+                                    'bg-gradient-to-t from-red-50 dark:from-red-900/20 to-transparent': key === 'do_first',
+                                    'bg-gradient-to-t from-blue-50 dark:from-blue-900/20 to-transparent': key === 'schedule',
+                                    'bg-gradient-to-t from-amber-50 dark:from-amber-900/20 to-transparent': key === 'delegate',
+                                    'bg-gradient-to-t from-gray-50 dark:from-slate-800 to-transparent': key === 'drop'
                                 }" />
                             </template>
                         </draggable>
-                        <p v-else class="text-[13px] text-gray-400 italic mt-1">Belum ada task</p>
+                        <p v-else class="text-[13px] text-gray-400 dark:text-gray-500 italic mt-1">Belum ada task</p>
                     </div>
                 </div>
             </div>

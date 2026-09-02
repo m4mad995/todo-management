@@ -126,7 +126,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-canvas flex text-gray-800 overflow-x-hidden w-full">
+    <div class="min-h-screen bg-canvas flex text-gray-800 dark:text-gray-100 overflow-x-clip w-full">
 
         <!-- SIDEBAR (desktop only) -->
         <aside class="w-60 bg-surface border-r border-border flex flex-col justify-between shrink-0 fixed h-full z-20 hidden lg:flex">
@@ -138,7 +138,7 @@ onUnmounted(() => {
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                         </svg>
                     </div>
-                    <span class="font-bold text-gray-900 text-[15px] tracking-tight">Second Brain</span>
+                    <span class="font-bold text-gray-900 dark:text-gray-100 text-[15px] tracking-tight">Second Brain</span>
                 </Link>
 
                 <!-- Navigation -->
@@ -150,8 +150,8 @@ onUnmounted(() => {
                         :class="[
                             'flex items-center gap-2.5 px-3 py-2 rounded-btn text-[15px] font-medium transition-all duration-150',
                             isUrl(item.href)
-                                ? 'bg-blue-50 text-blue-700'
-                                : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
+                                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
+                                : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 hover:text-gray-800 dark:hover:text-gray-200'
                         ]"
                     >
                         <!-- Chart -->
@@ -209,7 +209,7 @@ onUnmounted(() => {
                             v-model="topbarInput"
                             type="text"
                             :placeholder="topbarPlaceholder"
-                            class="w-full pl-9 pr-20 py-2 rounded-btn border border-gray-200 bg-surface text-[15px] text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15 transition-all duration-150"
+                            class="w-full pl-9 pr-20 py-2 rounded-btn border border-gray-200 dark:border-slate-600 bg-surface text-[15px] text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/15 dark:focus:ring-blue-400/20 transition-all duration-150"
                         />
                         <span :class="[topbarBadge.class, 'absolute right-3 top-1/2 -translate-y-1/2 text-[12px] font-semibold px-2 py-0.5 rounded-full pointer-events-none']">
                             {{ topbarBadge.label }}
@@ -223,12 +223,12 @@ onUnmounted(() => {
                     <div class="relative">
                         <button
                             @click.stop="showUserDropdown = !showUserDropdown"
-                            class="flex items-center gap-2.5 p-1 -m-1 rounded-lg hover:bg-gray-100 transition"
+                            class="flex items-center gap-2.5 p-1 -m-1 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition"
                         >
-                            <div class="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">
+                            <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300">
                                 {{ $page.props.auth?.user?.name?.charAt(0) || 'U' }}
                             </div>
-                            <span class="text-[15px] font-medium text-gray-600 hidden sm:block">{{ userName() }}</span>
+                            <span class="text-[15px] font-medium text-gray-600 dark:text-gray-300 hidden sm:block">{{ userName() }}</span>
                         </button>
                         <!-- Dropdown -->
                         <div
@@ -236,13 +236,13 @@ onUnmounted(() => {
                             class="absolute right-0 top-full mt-2 w-56 bg-surface rounded-lg shadow-elevated border border-border z-30 py-1 animate-fade-in"
                             @click.stop
                         >
-                            <div class="px-4 py-3 border-b border-gray-100">
-                                <p class="text-sm font-semibold text-gray-900">{{ $page.props.auth?.user?.name || 'User' }}</p>
-                                <p class="text-xs text-gray-500 truncate">{{ $page.props.auth?.user?.email || '' }}</p>
+                            <div class="px-4 py-3 border-b border-gray-100 dark:border-slate-600">
+                                <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $page.props.auth?.user?.name || 'User' }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $page.props.auth?.user?.email || '' }}</p>
                             </div>
                             <Link
                                 href="/profile"
-                                class="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition"
+                                class="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition"
                                 @click="showUserDropdown = false"
                             >
                                 <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -267,7 +267,7 @@ onUnmounted(() => {
             </header>
 
             <!-- Page Content -->
-            <main class="flex-1 px-4 sm:px-6 py-4 sm:py-6 pb-20 sm:pb-32 lg:pb-6 overflow-x-hidden">
+            <main class="flex-1 px-4 sm:px-6 py-4 sm:py-6 pb-20 sm:pb-32 lg:pb-6 overflow-x-clip">
                 <slot />
             </main>
         </div>

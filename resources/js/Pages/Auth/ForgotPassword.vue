@@ -23,7 +23,7 @@ const submit = () => {
 
         <!-- Header -->
         <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-900 tracking-tight">Lupa Password?</h2>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">Lupa Password?</h2>
             <p class="text-gray-500 text-sm mt-1">Masukkan email Anda dan kami akan mengirimkan link untuk mengatur ulang password.</p>
         </div>
 

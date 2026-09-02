@@ -7,12 +7,17 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         scroll-behavior: smooth;
-        overflow-x: hidden;
+        overflow-x: clip;
     }
 
     ::selection {
         background-color: rgb(37 99 235 / 0.15);
         color: #1e293b;
+    }
+
+    .dark ::selection {
+        background-color: rgb(96 165 250 / 0.3);
+        color: #f1f5f9;
     }
 
     ::-webkit-scrollbar {
@@ -32,6 +37,66 @@
     ::-webkit-scrollbar-thumb:hover {
         background-color: #9ca3af;
     }
+
+    .dark ::-webkit-scrollbar-thumb {
+        background-color: #475569;
+    }
+
+    .dark ::-webkit-scrollbar-thumb:hover {
+        background-color: #64748b;
+    }
+}
+
+:root {
+    --color-canvas: #F8FAFC;
+    --color-surface: #FFFFFF;
+    --color-border: #E5E7EB;
+    --matrix-doFirst: #FEE2E2;
+    --matrix-doFirst-light: #FEF2F2;
+    --matrix-doFirst-border: #FECACA;
+    --matrix-doFirst-text: #DC2626;
+    --matrix-doFirst-hover: #FEE2E2;
+    --matrix-schedule: #DBEAFE;
+    --matrix-schedule-light: #EFF6FF;
+    --matrix-schedule-border: #BFDBFE;
+    --matrix-schedule-text: #2563EB;
+    --matrix-schedule-hover: #DBEAFE;
+    --matrix-delegate: #FEF3C7;
+    --matrix-delegate-light: #FFFBEB;
+    --matrix-delegate-border: #FDE68A;
+    --matrix-delegate-text: #D97706;
+    --matrix-delegate-hover: #FEF3C7;
+    --matrix-drop: #F3F4F6;
+    --matrix-drop-light: #F9FAFB;
+    --matrix-drop-border: #E5E7EB;
+    --matrix-drop-text: #6B7280;
+    --matrix-drop-hover: #F3F4F6;
+}
+
+.dark {
+    --color-canvas: #0F172A;
+    --color-surface: #1E293B;
+    --color-border: #334155;
+    --matrix-doFirst: #450A0A;
+    --matrix-doFirst-light: #450A0A;
+    --matrix-doFirst-border: #7F1D1D;
+    --matrix-doFirst-text: #FCA5A5;
+    --matrix-doFirst-hover: #450A0A;
+    --matrix-schedule: #172554;
+    --matrix-schedule-light: #172554;
+    --matrix-schedule-border: #1E40AF;
+    --matrix-schedule-text: #93C5FD;
+    --matrix-schedule-hover: #172554;
+    --matrix-delegate: #451A03;
+    --matrix-delegate-light: #451A03;
+    --matrix-delegate-border: #92400E;
+    --matrix-delegate-text: #FCD34D;
+    --matrix-delegate-hover: #451A03;
+    --matrix-drop: #1E293B;
+    --matrix-drop-light: #1E293B;
+    --matrix-drop-border: #334155;
+    --matrix-drop-text: #94A3B8;
+    --matrix-drop-hover: #1E293B;
 }
 
 @layer components {
@@ -47,8 +112,16 @@
         @apply btn bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:ring-gray-400;
     }
 
+    .dark .btn-ghost {
+        @apply text-gray-400 hover:bg-slate-700 hover:text-gray-200;
+    }
+
     .btn-outline {
         @apply btn bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 focus:ring-gray-400;
+    }
+
+    .dark .btn-outline {
+        @apply bg-slate-800 text-gray-300 border-slate-600 hover:border-slate-500 hover:bg-slate-700;
     }
 
     .btn-danger {
@@ -71,8 +144,16 @@
         @apply bg-surface rounded-card border border-border shadow-card transition-all duration-150;
     }
 
+    .dark .card {
+        @apply shadow-card-dark;
+    }
+
     .card-hover {
         @apply card hover:shadow-card-hover hover:border-gray-300;
+    }
+
+    .dark .card-hover {
+        @apply hover:shadow-card-hover-dark hover:border-slate-500;
     }
 
     .badge {
@@ -83,24 +164,48 @@
         @apply badge bg-blue-50 text-blue-600;
     }
 
+    .dark .badge-blue {
+        @apply bg-blue-900/30 text-blue-400;
+    }
+
     .badge-violet {
         @apply badge bg-violet-50 text-violet-600;
+    }
+
+    .dark .badge-violet {
+        @apply bg-violet-900/30 text-violet-400;
     }
 
     .badge-amber {
         @apply badge bg-amber-50 text-amber-600;
     }
 
+    .dark .badge-amber {
+        @apply bg-amber-900/30 text-amber-400;
+    }
+
     .badge-emerald {
         @apply badge bg-emerald-50 text-emerald-600;
+    }
+
+    .dark .badge-emerald {
+        @apply bg-emerald-900/30 text-emerald-400;
     }
 
     .badge-red {
         @apply badge bg-red-50 text-red-600;
     }
 
+    .dark .badge-red {
+        @apply bg-red-900/30 text-red-400;
+    }
+
     .badge-gray {
         @apply badge bg-gray-100 text-gray-500;
+    }
+
+    .dark .badge-gray {
+        @apply bg-slate-700 text-gray-400;
     }
 
     .input {
@@ -108,12 +213,24 @@
                focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-150;
     }
 
+    .dark .input {
+        @apply bg-slate-800 border-slate-600 text-gray-100 placeholder-gray-500 focus:border-blue-400 focus:ring-blue-400/20;
+    }
+
     .label {
         @apply block text-[13px] font-semibold text-gray-500 mb-1.5;
     }
 
+    .dark .label {
+        @apply text-gray-400;
+    }
+
     .section-title {
         @apply text-base font-bold text-gray-800 tracking-tight;
+    }
+
+    .dark .section-title {
+        @apply text-gray-100;
     }
 }
 

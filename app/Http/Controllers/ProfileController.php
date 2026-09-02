@@ -39,7 +39,6 @@ class ProfileController extends Controller
 
         return Redirect::route('profile.edit');
     }
-
     /**
      * Delete the user's account.
      */
@@ -56,8 +55,25 @@ class ProfileController extends Controller
         $user->delete();
 
         $request->session()->invalidate();
+
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    /**
+     * Update the user's theme preference.
+     */
+    public function updateTheme(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'theme' => ['required', 'in:light,dark,system'],
+        ]);
+
+        $request->user()->update([
+            'theme' => $request->theme,
+        ]);
+
+        return back();
     }
 }

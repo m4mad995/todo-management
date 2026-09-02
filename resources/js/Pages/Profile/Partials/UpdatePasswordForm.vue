@@ -35,7 +35,7 @@ const updatePassword = () => {
 <template>
     <section>
         <header>
-            <h2 class="text-lg font-bold text-gray-900">Ubah Password</h2>
+            <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100">Ubah Password</h2>
             <p class="text-sm text-gray-500 mt-1">Pastikan akun Anda menggunakan password yang kuat untuk keamanan.</p>
         </header>
 

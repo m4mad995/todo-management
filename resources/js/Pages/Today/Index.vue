@@ -100,19 +100,19 @@ const greeting = computed(() => {
     <AuthenticatedLayout>
         <!-- Header -->
         <div class="mb-6">
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Hari Ini</h1>
-            <p class="text-gray-500 mt-0.5 text-[15px]">{{ greeting }} — {{ todayDate }}</p>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">Hari Ini</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-0.5 text-[15px]">{{ greeting }} — {{ todayDate }}</p>
         </div>
 
         <!-- Progress Card -->
         <div v-if="totalCount > 0" class="card p-4 mb-6">
             <div class="flex items-center justify-between mb-2">
-                <span class="text-[13px] font-semibold text-gray-700">
+                <span class="text-[13px] font-semibold text-gray-700 dark:text-gray-300">
                     {{ completedCount }}/{{ totalCount }} selesai
                 </span>
                 <span class="text-[13px] font-bold text-emerald-600">{{ progressPercent }}%</span>
             </div>
-            <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div class="w-full h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
                 <div
                     class="h-full bg-emerald-500 rounded-full transition-all duration-500"
                     :style="{ width: progressPercent + '%' }"
@@ -122,13 +122,13 @@ const greeting = computed(() => {
 
         <!-- Empty State -->
         <div v-if="totalCount === 0" class="card p-8 text-center">
-            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
-                <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <div class="w-12 h-12 rounded-full bg-gray-100 dark:bg-slate-700 flex items-center justify-center mx-auto mb-3">
+                <svg class="w-6 h-6 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                 </svg>
             </div>
-            <p class="text-[15px] font-semibold text-gray-600 mb-1">Belum ada target hari ini</p>
-            <p class="text-[13px] text-gray-400 mb-4">Tambah task atau rutinitas yang ingin kamu kerjakan hari ini.</p>
+            <p class="text-[15px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Belum ada target hari ini</p>
+            <p class="text-[13px] text-gray-400 dark:text-gray-500 mb-4">Tambah task atau rutinitas yang ingin kamu kerjakan hari ini.</p>
             <div class="flex items-center justify-center gap-2">
                 <button @click="showAddTask = true" class="btn-primary btn-sm">
                     + Task
@@ -142,7 +142,7 @@ const greeting = computed(() => {
             <div v-if="doFirstTargets.length > 0">
                 <div class="flex items-center gap-2 mb-2">
                     <span class="w-2 h-2 rounded-full bg-red-500"></span>
-                    <span class="text-[13px] font-bold text-gray-700 uppercase tracking-wider">Do First</span>
+                    <span class="text-[13px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Do First</span>
                     <span class="badge-red text-[11px]">{{ doFirstTargets.length }}</span>
                 </div>
                 <div class="space-y-1">
@@ -158,17 +158,17 @@ const greeting = computed(() => {
                             >
                             </button>
                             <div class="flex-1 min-w-0">
-                                <p class="text-[14px] text-gray-800 truncate">{{ target.targetable?.title }}</p>
+                                <p class="text-[14px] text-gray-800 dark:text-gray-200 truncate">{{ target.targetable?.title }}</p>
                             </div>
                             <span :class="[matrixConfig[target.targetable?.matrix]?.badge || 'badge-gray', 'text-[10px] shrink-0']">
                                 {{ matrixConfig[target.targetable?.matrix]?.label }}
                             </span>
-                            <Link href="/focus" class="text-[11px] font-semibold text-gray-400 hover:text-blue-500 transition shrink-0">
+                            <Link href="/focus" class="text-[11px] font-semibold text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 transition shrink-0">
                                 Fokus →
                             </Link>
                             <button
                                 @click="removeFromToday(target.id)"
-                                class="w-6 h-6 flex items-center justify-center rounded text-gray-300 hover:text-red-400 transition opacity-0 group-hover:opacity-100 shrink-0"
+                                class="w-6 h-6 flex items-center justify-center rounded text-gray-300 dark:text-gray-600 hover:text-red-400 transition opacity-0 group-hover:opacity-100 shrink-0"
                             >
                                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -187,10 +187,10 @@ const greeting = computed(() => {
                                     class="w-4 h-4 rounded border-[1.5px] border-red-200 flex items-center justify-center shrink-0 hover:border-red-400 transition"
                                 >
                                 </button>
-                                <p class="text-[13px] text-gray-600 truncate flex-1">{{ sub.targetable?.title }}</p>
+                                <p class="text-[13px] text-gray-600 dark:text-gray-400 truncate flex-1">{{ sub.targetable?.title }}</p>
                                 <button
                                     @click="removeFromToday(sub.id)"
-                                    class="w-5 h-5 flex items-center justify-center rounded text-gray-300 hover:text-red-400 transition opacity-0 group-hover:opacity-100 shrink-0"
+                                    class="w-5 h-5 flex items-center justify-center rounded text-gray-300 dark:text-gray-600 hover:text-red-400 transition opacity-0 group-hover:opacity-100 shrink-0"
                                 >
                                     <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -206,7 +206,7 @@ const greeting = computed(() => {
             <div v-if="otherTaskTargets.length > 0">
                 <div class="flex items-center gap-2 mb-2">
                     <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                    <span class="text-[13px] font-bold text-gray-700 uppercase tracking-wider">Task Lainnya</span>
+                    <span class="text-[13px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Task Lainnya</span>
                     <span class="badge-blue text-[11px]">{{ otherTaskTargets.length }}</span>
                 </div>
                 <div class="space-y-1">
@@ -222,17 +222,17 @@ const greeting = computed(() => {
                             >
                             </button>
                             <div class="flex-1 min-w-0">
-                                <p class="text-[14px] text-gray-800 truncate">{{ target.targetable?.title }}</p>
+                                <p class="text-[14px] text-gray-800 dark:text-gray-200 truncate">{{ target.targetable?.title }}</p>
                             </div>
                             <span :class="[matrixConfig[target.targetable?.matrix]?.badge || 'badge-gray', 'text-[10px] shrink-0']">
                                 {{ matrixConfig[target.targetable?.matrix]?.label }}
                             </span>
-                            <Link href="/focus" class="text-[11px] font-semibold text-gray-400 hover:text-blue-500 transition shrink-0">
+                            <Link href="/focus" class="text-[11px] font-semibold text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 transition shrink-0">
                                 Fokus →
                             </Link>
                             <button
                                 @click="removeFromToday(target.id)"
-                                class="w-6 h-6 flex items-center justify-center rounded text-gray-300 hover:text-red-400 transition opacity-0 group-hover:opacity-100 shrink-0"
+                                class="w-6 h-6 flex items-center justify-center rounded text-gray-300 dark:text-gray-600 hover:text-red-400 transition opacity-0 group-hover:opacity-100 shrink-0"
                             >
                                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -251,10 +251,10 @@ const greeting = computed(() => {
                                     class="w-4 h-4 rounded border-[1.5px] border-blue-200 flex items-center justify-center shrink-0 hover:border-blue-400 transition"
                                 >
                                 </button>
-                                <p class="text-[13px] text-gray-600 truncate flex-1">{{ sub.targetable?.title }}</p>
+                                <p class="text-[13px] text-gray-600 dark:text-gray-400 truncate flex-1">{{ sub.targetable?.title }}</p>
                                 <button
                                     @click="removeFromToday(sub.id)"
-                                    class="w-5 h-5 flex items-center justify-center rounded text-gray-300 hover:text-red-400 transition opacity-0 group-hover:opacity-100 shrink-0"
+                                    class="w-5 h-5 flex items-center justify-center rounded text-gray-300 dark:text-gray-600 hover:text-red-400 transition opacity-0 group-hover:opacity-100 shrink-0"
                                 >
                                     <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -269,9 +269,9 @@ const greeting = computed(() => {
             <!-- Sub-task Pilihan (added individually, not nested under parent) -->
             <div v-if="orphanSubTasks.length > 0">
                 <div class="flex items-center gap-2 mb-2">
-                    <span class="w-2 h-2 rounded-full bg-purple-500"></span>
-                    <span class="text-[13px] font-bold text-gray-700 uppercase tracking-wider">Sub-task Pilihan</span>
-                    <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-purple-50 text-purple-600">{{ orphanSubTasks.length }}</span>
+                    <span class="w-2 h-2 rounded-full bg-purple-50 dark:bg-purple-900/20"></span>
+                    <span class="text-[13px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Sub-task Pilihan</span>
+                    <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-600">{{ orphanSubTasks.length }}</span>
                 </div>
                 <div class="space-y-1">
                     <div
@@ -285,17 +285,17 @@ const greeting = computed(() => {
                         >
                         </button>
                         <div class="flex-1 min-w-0">
-                            <p class="text-[14px] text-gray-800 truncate">{{ target.targetable?.title }}</p>
-                            <p v-if="target.targetable?.task" class="text-[11px] text-gray-400 truncate mt-0.5">
+                            <p class="text-[14px] text-gray-800 dark:text-gray-200 truncate">{{ target.targetable?.title }}</p>
+                            <p v-if="target.targetable?.task" class="text-[11px] text-gray-400 dark:text-gray-500 truncate mt-0.5">
                                 {{ target.targetable.task.title }}
                             </p>
                         </div>
-                        <Link href="/focus" class="text-[11px] font-semibold text-gray-400 hover:text-blue-500 transition shrink-0">
+                        <Link href="/focus" class="text-[11px] font-semibold text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 transition shrink-0">
                             Fokus →
                         </Link>
                         <button
                             @click="removeFromToday(target.id)"
-                            class="w-6 h-6 flex items-center justify-center rounded text-gray-300 hover:text-red-400 transition opacity-0 group-hover:opacity-100 shrink-0"
+                            class="w-6 h-6 flex items-center justify-center rounded text-gray-300 dark:text-gray-600 hover:text-red-400 transition opacity-0 group-hover:opacity-100 shrink-0"
                         >
                             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -309,7 +309,7 @@ const greeting = computed(() => {
             <div v-if="routineTargets.length > 0">
                 <div class="flex items-center gap-2 mb-2">
                     <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span class="text-[13px] font-bold text-gray-700 uppercase tracking-wider">Rutinitas</span>
+                    <span class="text-[13px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Rutinitas</span>
                     <span class="badge-emerald text-[11px]">{{ routineTargets.length }}</span>
                 </div>
                 <div class="space-y-1">
@@ -324,7 +324,7 @@ const greeting = computed(() => {
                         >
                         </button>
                         <div class="flex-1 min-w-0">
-                            <p class="text-[14px] text-gray-800 truncate">{{ target.targetable?.title }}</p>
+                            <p class="text-[14px] text-gray-800 dark:text-gray-200 truncate">{{ target.targetable?.title }}</p>
                             <div class="flex items-center gap-1.5 mt-0.5">
                                 <span v-if="target.targetable?.is_everyday" class="text-[11px] font-semibold text-emerald-600">Setiap Hari</span>
                                 <div v-else-if="target.targetable?.days_of_week && target.targetable.days_of_week.length > 0" class="flex gap-0.5">
@@ -333,18 +333,18 @@ const greeting = computed(() => {
                                         :key="d.v"
                                         :class="[
                                             'w-4 h-4 rounded flex items-center justify-center font-bold text-[8px]',
-                                            target.targetable.days_of_week.includes(d.v) ? 'bg-emerald-100 text-emerald-700' : 'text-gray-300'
+                                            target.targetable.days_of_week.includes(d.v) ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700' : 'text-gray-300 dark:text-gray-600'
                                         ]"
                                     >{{ d.l }}</span>
                                 </div>
                             </div>
                         </div>
-                        <Link href="/routines" class="text-[11px] font-semibold text-gray-400 hover:text-blue-500 transition shrink-0">
+                        <Link href="/routines" class="text-[11px] font-semibold text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 transition shrink-0">
                             Rutinitas →
                         </Link>
                         <button
                             @click="removeFromToday(target.id)"
-                            class="w-6 h-6 flex items-center justify-center rounded text-gray-300 hover:text-red-400 transition opacity-0 group-hover:opacity-100 shrink-0"
+                            class="w-6 h-6 flex items-center justify-center rounded text-gray-300 dark:text-gray-600 hover:text-red-400 transition opacity-0 group-hover:opacity-100 shrink-0"
                         >
                             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -372,7 +372,7 @@ const greeting = computed(() => {
                     <div
                         v-for="target in completedTargets"
                         :key="target.id"
-                        class="card p-3 flex items-center gap-3 bg-emerald-50/50 group"
+                        class="card p-3 flex items-center gap-3 bg-emerald-50/50 dark:bg-emerald-900/20 group"
                     >
                         <button
                             @click="toggleComplete(target.id)"
@@ -382,10 +382,10 @@ const greeting = computed(() => {
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                             </svg>
                         </button>
-                        <span class="text-[14px] text-gray-500 line-through truncate flex-1">{{ target.targetable?.title }}</span>
+                        <span class="text-[14px] text-gray-500 dark:text-gray-400 line-through truncate flex-1">{{ target.targetable?.title }}</span>
                         <button
                             @click="removeFromToday(target.id)"
-                            class="w-6 h-6 flex items-center justify-center rounded text-gray-300 hover:text-red-400 transition opacity-0 group-hover:opacity-100 shrink-0"
+                            class="w-6 h-6 flex items-center justify-center rounded text-gray-300 dark:text-gray-600 hover:text-red-400 transition opacity-0 group-hover:opacity-100 shrink-0"
                         >
                             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -416,10 +416,10 @@ const greeting = computed(() => {
                 <div v-if="showAddTask" class="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div class="absolute inset-0 bg-gray-900/30 backdrop-blur-sm" @click="showAddTask = false"></div>
                     <div class="relative bg-surface rounded-card shadow-elevated border border-border w-full max-w-md max-h-[70vh] flex flex-col animate-slide-up">
-                        <div class="p-4 border-b border-gray-100">
+                        <div class="p-4 border-b border-gray-100 dark:border-slate-700">
                             <div class="flex items-center justify-between">
-                                <h3 class="text-[15px] font-bold text-gray-900">Tambah Task ke Hari Ini</h3>
-                                <button @click="showAddTask = false" class="text-gray-400 hover:text-gray-600 transition p-1 -m-1">
+                                <h3 class="text-[15px] font-bold text-gray-900 dark:text-gray-100">Tambah Task ke Hari Ini</h3>
+                                <button @click="showAddTask = false" class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition p-1 -m-1">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
@@ -428,19 +428,19 @@ const greeting = computed(() => {
                         </div>
                         <div class="overflow-y-auto flex-1 p-4">
                             <div v-if="availableTasks.length === 0" class="text-center py-6">
-                                <p class="text-[13px] text-gray-400">Semua task aktif sudah ada di hari ini.</p>
+                                <p class="text-[13px] text-gray-400 dark:text-gray-500">Semua task aktif sudah ada di hari ini.</p>
                             </div>
                             <div v-else class="space-y-1">
                                 <div v-for="task in availableTasks" :key="task.id">
                                     <button
                                         @click="addToToday('Task', task.id); showAddTask = false"
-                                        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-btn hover:bg-blue-50/50 transition text-left"
+                                        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-btn hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition text-left"
                                     >
                                         <span :class="[matrixConfig[task.matrix]?.badge || 'badge-gray', 'text-[10px] shrink-0']">
                                             {{ matrixConfig[task.matrix]?.label || 'Inbox' }}
                                         </span>
-                                        <span class="text-[14px] text-gray-800 truncate flex-1">{{ task.title }}</span>
-                                        <svg class="w-4 h-4 text-gray-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <span class="text-[14px] text-gray-800 dark:text-gray-200 truncate flex-1">{{ task.title }}</span>
+                                        <svg class="w-4 h-4 text-gray-300 dark:text-gray-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                                         </svg>
                                     </button>
@@ -450,11 +450,11 @@ const greeting = computed(() => {
                                             v-for="sub in task.sub_tasks"
                                             :key="sub.id"
                                             @click="addToToday('SubTask', sub.id); showAddTask = false"
-                                            class="w-full flex items-center gap-2 px-3 py-1.5 rounded-btn hover:bg-purple-50/50 transition text-left"
+                                            class="w-full flex items-center gap-2 px-3 py-1.5 rounded-btn hover:bg-purple-50 dark:bg-purple-900/20/50 transition text-left"
                                         >
-                                            <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-purple-50 text-purple-600 shrink-0">Sub</span>
-                                            <span class="text-[13px] text-gray-600 truncate flex-1">{{ sub.title }}</span>
-                                            <svg class="w-3.5 h-3.5 text-gray-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-purple-50 dark:bg-purple-900/20 text-purple-600 shrink-0">Sub</span>
+                                            <span class="text-[13px] text-gray-600 dark:text-gray-400 truncate flex-1">{{ sub.title }}</span>
+                                            <svg class="w-3.5 h-3.5 text-gray-300 dark:text-gray-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                                             </svg>
                                         </button>
