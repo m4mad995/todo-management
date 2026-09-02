@@ -116,12 +116,240 @@ const closeUserDropdown = () => {
     showUserDropdown.value = false;
 };
 
+const collapseWidget = (e) => {
+    if (widgetExpanded.value && !e.target.closest('.timer-widget')) {
+        widgetExpanded.value = false;
+    }
+};
+
+// === Persistent Timer State ===
+const STORAGE_KEY = 'pomodoro-timer';
+const timerState = ref({
+    endTime: null,
+    taskId: null,
+    taskTitle: '',
+    taskMatrix: null,
+    presetMode: '25/5',
+    isBreak: false,
+    cyclesCompleted: 0,
+    isActive: false,
+    isPaused: false,
+    isCompleted: false,
+    widgetDismissed: false,
+});
+const timerTimeLeft = ref(0);
+const showWidget = ref(false);
+const widgetExpanded = ref(false);
+let timerInterval = null;
+
+const isOnSessionPage = computed(() => page.url.startsWith('/focus/session'));
+
+const formattedTimerTime = computed(() => {
+    const m = Math.floor(timerTimeLeft.value / 60);
+    const s = timerTimeLeft.value % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+});
+
+const shouldShowWidget = computed(() => {
+    return (timerState.value.isActive || timerState.value.isPaused) && !isOnSessionPage.value && !timerState.value.widgetDismissed;
+});
+
+const shouldShowTopbarIcon = computed(() => {
+    return (timerState.value.isActive || timerState.value.isPaused) && timerState.value.widgetDismissed;
+});
+
+const shouldShowCompletedWidget = computed(() => {
+    return timerState.value.isCompleted && !isOnSessionPage.value;
+});
+
+const dotColor = computed(() => {
+    const colors = {
+        do_first: 'bg-red-500 dark:bg-red-400',
+        schedule: 'bg-blue-500 dark:bg-blue-400',
+        delegate: 'bg-amber-500 dark:bg-amber-400',
+        drop: 'bg-gray-400 dark:bg-gray-500',
+    };
+    return colors[timerState.value.taskMatrix] || 'bg-blue-500 dark:bg-blue-400';
+});
+
+const loadTimerState = () => {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        timerState.value = { ...timerState.value, ...data };
+
+        if (data.endTime && data.isActive) {
+            const remaining = Math.max(0, Math.ceil((data.endTime - Date.now()) / 1000));
+            timerTimeLeft.value = remaining;
+            if (remaining > 0) {
+                startTimerInterval();
+            } else {
+                // Timer expired while away
+                timerState.value.isActive = false;
+                timerState.value.isCompleted = true;
+                timerTimeLeft.value = 0;
+                saveToStorage();
+            }
+        } else if (data.isCompleted) {
+            timerTimeLeft.value = 0;
+        }
+    } catch {}
+};
+
+const saveToStorage = () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(timerState.value));
+};
+
+const startTimerInterval = () => {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        if (!timerState.value.endTime) return;
+        const remaining = Math.max(0, Math.ceil((timerState.value.endTime - Date.now()) / 1000));
+        timerTimeLeft.value = remaining;
+        if (remaining <= 0) {
+            clearInterval(timerInterval);
+            timerState.value.isActive = false;
+            timerState.value.isCompleted = true;
+            saveToStorage();
+        }
+    }, 1000);
+};
+
+const dismissWidget = () => {
+    showWidget.value = false;
+    widgetExpanded.value = false;
+    timerState.value.widgetDismissed = true;
+    saveToStorage();
+};
+
+const reopenWidget = () => {
+    showWidget.value = true;
+    widgetExpanded.value = false;
+    timerState.value.widgetDismissed = false;
+    saveToStorage();
+};
+
+const navigateToSession = () => {
+    if (timerState.value.taskId) {
+        router.visit(`/focus/session?task_id=${timerState.value.taskId}`);
+    } else {
+        router.visit('/focus/session');
+    }
+};
+
+const handleTimerEndAction = () => {
+    // Start break or next focus
+    if (!timerState.value.isBreak) {
+        timerState.value.isBreak = true;
+        timerState.value.isActive = true;
+        timerState.value.isCompleted = false;
+        // Calculate break time based on preset
+        const breakMinutes = { '25/5': 5, '50/10': 10, '15/3': 3 };
+        const minutes = breakMinutes[timerState.value.presetMode] || 5;
+        timerState.value.endTime = Date.now() + (minutes * 60 * 1000);
+        saveToStorage();
+        startTimerInterval();
+        navigateToSession();
+    } else {
+        timerState.value.isBreak = false;
+        timerState.value.isActive = true;
+        timerState.value.isCompleted = false;
+        const workMinutes = { '25/5': 25, '50/10': 50, '15/3': 15 };
+        const minutes = workMinutes[timerState.value.presetMode] || 25;
+        timerState.value.endTime = Date.now() + (minutes * 60 * 1000);
+        saveToStorage();
+        startTimerInterval();
+        navigateToSession();
+    }
+};
+
+const toggleWidgetExpand = () => {
+    widgetExpanded.value = !widgetExpanded.value;
+};
+
+// === Widget action buttons ===
+const showResetConfirm = ref(false);
+
+const widgetToggleTimer = () => {
+    if (timerState.value.isActive) {
+        // Pause
+        clearInterval(timerInterval);
+        timerState.value.isActive = false;
+        timerState.value.isPaused = true;
+        timerState.value.timeLeft = timerTimeLeft.value;
+        saveToStorage();
+    } else {
+        // Resume
+        const remaining = timerTimeLeft.value;
+        if (remaining > 0) {
+            timerState.value.endTime = Date.now() + (remaining * 1000);
+            timerState.value.isActive = true;
+            timerState.value.isPaused = false;
+            saveToStorage();
+            startTimerInterval();
+        }
+    }
+    widgetExpanded.value = false;
+};
+
+const widgetResetTimer = () => {
+    showResetConfirm.value = false;
+    clearInterval(timerInterval);
+    const breakMinutes = { '25/5': 5, '50/10': 10, '15/3': 3 };
+    const workMinutes = { '25/5': 25, '50/10': 50, '15/3': 15 };
+    const minutes = timerState.value.isBreak
+        ? (breakMinutes[timerState.value.presetMode] || 5)
+        : (workMinutes[timerState.value.presetMode] || 25);
+    timerState.value.endTime = null;
+    timerState.value.isActive = false;
+    timerState.value.isPaused = true;
+    timerTimeLeft.value = minutes * 60;
+    timerState.value.timeLeft = minutes * 60;
+    saveToStorage();
+    widgetExpanded.value = false;
+};
+
+const widgetSkipPhase = () => {
+    clearInterval(timerInterval);
+    const breakMinutes = { '25/5': 5, '50/10': 10, '15/3': 3 };
+    const workMinutes = { '25/5': 25, '50/10': 50, '15/3': 15 };
+    if (!timerState.value.isBreak) {
+        timerState.value.cyclesCompleted++;
+        timerState.value.isBreak = true;
+        const minutes = breakMinutes[timerState.value.presetMode] || 5;
+        timerState.value.endTime = Date.now() + (minutes * 60 * 1000);
+        timerTimeLeft.value = minutes * 60;
+        timerState.value.isActive = true;
+    } else {
+        timerState.value.isBreak = false;
+        const minutes = workMinutes[timerState.value.presetMode] || 25;
+        timerState.value.endTime = Date.now() + (minutes * 60 * 1000);
+        timerTimeLeft.value = minutes * 60;
+        timerState.value.isActive = true;
+    }
+    saveToStorage();
+    startTimerInterval();
+    widgetExpanded.value = false;
+};
+
 onMounted(() => {
     document.addEventListener('click', closeUserDropdown);
+    document.addEventListener('click', collapseWidget);
+    loadTimerState();
+
+    // Listen for storage changes from other tabs/components
+    window.addEventListener('storage', (e) => {
+        if (e.key === STORAGE_KEY) {
+            loadTimerState();
+        }
+    });
 });
 
 onUnmounted(() => {
     document.removeEventListener('click', closeUserDropdown);
+    document.removeEventListener('click', collapseWidget);
+    clearInterval(timerInterval);
 });
 </script>
 
@@ -219,6 +447,19 @@ onUnmounted(() => {
                 <div v-else></div>
 
                 <div class="flex items-center gap-3">
+                    <!-- Topbar timer icon (visible when widget dismissed) -->
+                    <button
+                        v-if="shouldShowTopbarIcon"
+                        @click="reopenWidget"
+                        class="relative flex items-center justify-center w-8 h-8 rounded-lg bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-700 transition"
+                        title="Timer sedang berjalan"
+                    >
+                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+
                     <!-- User dropdown -->
                     <div class="relative">
                         <button
@@ -400,6 +641,150 @@ onUnmounted(() => {
                         <Link v-if="quickForm.type === 'agenda'" href="/agenda" class="flex items-center justify-center pt-2 text-[12px] text-gray-400 hover:text-amber-500 transition">
                             Lihat Semua Agenda →
                         </Link>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+    </Teleport>
+
+    <!-- === FLOATING TIMER WIDGET === -->
+    <Teleport to="body">
+        <!-- Active timer widget -->
+        <Transition
+            enter-active-class="transition-all duration-300 ease-out"
+            enter-from-class="opacity-0 translate-y-4 scale-95"
+            enter-to-class="opacity-100 translate-y-0 scale-100"
+            leave-active-class="transition-all duration-200 ease-in"
+            leave-from-class="opacity-100 translate-y-0 scale-100"
+            leave-to-class="opacity-0 translate-y-4 scale-95"
+        >
+            <div
+                v-if="shouldShowWidget || shouldShowCompletedWidget"
+                class="fixed bottom-20 right-4 z-50 timer-widget"
+            >
+                <!-- Completed state -->
+                <div v-if="shouldShowCompletedWidget" class="bg-surface rounded-2xl shadow-elevated border border-border overflow-hidden animate-slide-up">
+                    <div class="p-4 min-w-[220px]">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-bold text-gray-900 dark:text-gray-100">Sesi Selesai!</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ timerState.taskTitle }}</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button @click="handleTimerEndAction" class="flex-1 btn btn-primary btn-sm text-xs">
+                                {{ timerState.isBreak ? 'Mulai Fokus' : 'Mulai Istirahat' }}
+                            </button>
+                            <button @click="dismissWidget" class="btn btn-ghost btn-sm text-xs px-2">✕</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active timer widget -->
+                <div v-else>
+                    <!-- Collapsed (default) -->
+                    <div
+                        v-if="!widgetExpanded"
+                        @click="toggleWidgetExpand"
+                        class="bg-surface rounded-2xl shadow-elevated border border-border px-4 py-3 cursor-pointer hover:shadow-card-hover transition-all duration-200"
+                    >
+                        <div class="flex items-center gap-2">
+                            <div :class="[dotColor, 'w-2 h-2 rounded-full animate-pulse shrink-0']"></div>
+                            <span class="text-lg font-mono font-bold text-gray-900 dark:text-gray-100 tracking-wide">{{ formattedTimerTime }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Expanded -->
+                    <div
+                        v-else
+                        class="bg-surface rounded-2xl shadow-elevated border border-border overflow-hidden animate-slide-up"
+                    >
+                        <div class="p-4 min-w-[240px]">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <div :class="[dotColor, 'w-2 h-2 rounded-full animate-pulse']"></div>
+                                    <span class="text-lg font-mono font-bold text-gray-900 dark:text-gray-100">{{ formattedTimerTime }}</span>
+                                </div>
+                                <button @click="dismissWidget" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition p-1 -m-1">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate mb-1">{{ timerState.taskTitle }}</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500 mb-3">
+                                {{ timerState.isBreak ? 'Istirahat' : 'Fokus' }} • Siklus {{ timerState.cyclesCompleted }}
+                            </p>
+
+                            <!-- Action buttons -->
+                            <div class="flex items-center gap-1.5 mb-3">
+                                <button @click="widgetToggleTimer" class="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium transition" :class="timerState.isActive ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30' : 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30'">
+                                    <svg v-if="timerState.isActive" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <svg v-else class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 3l14 9-14 9V3z" />
+                                    </svg>
+                                    {{ timerState.isActive ? 'Pause' : 'Play' }}
+                                </button>
+                                <button @click="showResetConfirm = true" class="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                    Reset
+                                </button>
+                                <button @click="widgetSkipPhase" class="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                                    </svg>
+                                    Skip
+                                </button>
+                            </div>
+
+                            <button @click="navigateToSession" class="w-full btn btn-primary btn-sm text-xs">
+                                Kembali ke Sesi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+    </Teleport>
+
+    <!-- Reset Confirmation Modal -->
+    <Teleport to="body">
+        <Transition
+            enter-active-class="duration-200 ease-out"
+            enter-from-class="opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="duration-150 ease-in"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0"
+        >
+            <div v-if="showResetConfirm" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div class="absolute inset-0 bg-gray-900/30 backdrop-blur-sm" @click="showResetConfirm = false"></div>
+                <div class="relative bg-surface rounded-card shadow-elevated border border-border w-full max-w-sm animate-slide-up">
+                    <div class="p-5">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-[15px] font-bold text-gray-900">Reset Timer?</h3>
+                                <p class="text-[13px] text-gray-500">Timer akan direset ke waktu awal. Siklus yang sudah tercatat tidak akan hilang.</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-2 pt-3 border-t border-gray-100">
+                            <button @click="showResetConfirm = false" class="btn-ghost btn-sm">Batal</button>
+                            <button @click="widgetResetTimer" class="btn-primary btn-sm">Ya, Reset</button>
+                        </div>
                     </div>
                 </div>
             </div>

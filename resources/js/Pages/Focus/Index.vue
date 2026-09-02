@@ -180,6 +180,31 @@ const moveToQuadrant = (taskId, newMatrix) => {
     closeActionMenu();
 };
 
+// Edit task title
+const editingTaskId = ref(null);
+const editTitle = ref('');
+
+const startEditTask = (task) => {
+    editingTaskId.value = task.id;
+    editTitle.value = task.title;
+    closeActionMenu();
+};
+
+const saveEditTask = (taskId) => {
+    if (!editTitle.value.trim()) {
+        cancelEditTask();
+        return;
+    }
+    if (editTitle.value.trim() !== '') {
+        router.patch(`/tasks/${taskId}`, { title: editTitle.value.trim() });
+    }
+    editingTaskId.value = null;
+};
+
+const cancelEditTask = () => {
+    editingTaskId.value = null;
+};
+
 const completeTask = (taskId) => {
     router.patch(`/tasks/${taskId}`, { completed: 1 });
 };
@@ -353,7 +378,16 @@ const matrixConfig = {
                     <div
                         class="flex items-center justify-between p-2.5 rounded-btn hover:bg-gray-50 dark:hover:bg-slate-700 dark:bg-slate-800 transition group"
                     >
-                    <span class="text-[15px] text-gray-700 dark:text-gray-300 truncate min-w-0 flex-1 pr-4" :title="task.title">{{ task.title }}</span>
+                    <span v-if="editingTaskId !== task.id" class="text-[15px] text-gray-700 dark:text-gray-300 truncate min-w-0 flex-1 pr-4" :title="task.title">{{ task.title }}</span>
+                    <input
+                        v-else
+                        v-model="editTitle"
+                        @keyup.enter="saveEditTask(task.id)"
+                        @keyup.escape="cancelEditTask"
+                        @blur="saveEditTask(task.id)"
+                        class="input text-sm py-1 flex-1 min-w-0"
+                        autofocus
+                    />
 
                     <div class="flex items-center gap-1">
                         <button
@@ -566,12 +600,22 @@ const matrixConfig = {
                                             </svg>
                                         </button>
                                         <span
+                                            v-if="editingTaskId !== item.id"
                                             class="truncate flex-1"
                                             :class="key === 'drop' ? 'text-gray-400 dark:text-gray-500 line-through' : 'text-gray-700 dark:text-gray-300'"
                                             :title="item.title"
                                         >
                                             {{ item.title }}
                                         </span>
+                                        <input
+                                            v-else
+                                            v-model="editTitle"
+                                            @keyup.enter="saveEditTask(item.id)"
+                                            @keyup.escape="cancelEditTask"
+                                            @blur="saveEditTask(item.id)"
+                                            class="input text-sm py-1 flex-1 min-w-0"
+                                            autofocus
+                                        />
                                     </div>
 
                                     <!-- Right: progress + menu -->
@@ -685,6 +729,16 @@ const matrixConfig = {
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 3l14 9-14 9V3z" />
                                                         </svg>
                                                         Mulai Sesi Fokus
+                                                    </button>
+                                                    <div class="border-t border-gray-100 dark:border-slate-700 my-1"></div>
+                                                    <button
+                                                        @click="startEditTask(item)"
+                                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 dark:bg-slate-800 transition text-left"
+                                                    >
+                                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                        </svg>
+                                                        Edit
                                                     </button>
                                                     <div class="border-t border-gray-100 dark:border-slate-700 my-1"></div>
                                                     <button

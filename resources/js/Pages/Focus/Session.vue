@@ -1,24 +1,65 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 
 const props = defineProps({
     activeTask: Object,
 });
 
+const STORAGE_KEY = 'pomodoro-timer';
+
+// Timer state
 const workTime = ref(25 * 60);
 const breakTime = ref(5 * 60);
 const timeLeft = ref(25 * 60);
-
 const isRunning = ref(false);
 const isBreak = ref(false);
 const presetMode = ref('25/5');
 const cyclesCompleted = ref(0);
 
+// Session state
+const showSkipConfirm = ref(false);
+const showPhaseAlert = ref(false);
+const phaseAlertMessage = ref('');
+
 let timerInterval = null;
 let endTime = null;
 
+// === localStorage persistence ===
+const getTimerState = () => {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+};
+
+const saveTimerState = () => {
+    const state = {
+        endTime: endTime || null,
+        taskId: props.activeTask?.id || null,
+        taskTitle: props.activeTask?.title || 'Focus Session',
+        taskMatrix: props.activeTask?.matrix || null,
+        presetMode: presetMode.value,
+        isBreak: isBreak.value,
+        cyclesCompleted: cyclesCompleted.value,
+        isActive: isRunning.value,
+        isCompleted: false,
+        widgetDismissed: false,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+};
+
+const clearTimerState = () => {
+    localStorage.removeItem(STORAGE_KEY);
+};
+
+const updateTimerState = (overrides = {}) => {
+    const current = getTimerState() || {};
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...current, ...overrides }));
+};
+
+// === Audio ===
 const playBeep = () => {
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -33,12 +74,14 @@ const playBeep = () => {
     }
 };
 
+// === Formatted time ===
 const formattedTime = computed(() => {
     const minutes = Math.floor(timeLeft.value / 60);
     const seconds = timeLeft.value % 60;
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 });
 
+// === Timer controls ===
 const toggleTimer = () => {
     if (isRunning.value) {
         pauseTimer();
@@ -50,6 +93,7 @@ const toggleTimer = () => {
 const startTimer = () => {
     isRunning.value = true;
     endTime = Date.now() + (timeLeft.value * 1000);
+    saveTimerState();
     timerInterval = setInterval(() => {
         updateRemainingTime();
     }, 500);
@@ -67,12 +111,14 @@ const updateRemainingTime = () => {
 const pauseTimer = () => {
     isRunning.value = false;
     clearInterval(timerInterval);
-    endTime = null;
+    // endTime TIDAK di-null-kan agar bisa resume saat re-enter session
+    updateTimerState({ isActive: false, timeLeft: timeLeft.value });
 };
 
 const resetTimer = () => {
     pauseTimer();
     timeLeft.value = isBreak.value ? breakTime.value : workTime.value;
+    clearTimerState();
 };
 
 const handlePhaseComplete = () => {
@@ -83,12 +129,31 @@ const handlePhaseComplete = () => {
         cyclesCompleted.value++;
         isBreak.value = true;
         timeLeft.value = breakTime.value;
-        alert('Sesi kerja selesai! Saatnya istirahat.');
+        phaseAlertMessage.value = 'Sesi kerja selesai! Saatnya istirahat.';
     } else {
         isBreak.value = false;
         timeLeft.value = workTime.value;
-        alert('Istirahat selesai! Siap untuk fokus lagi?');
+        phaseAlertMessage.value = 'Istirahat selesai! Siap untuk fokus lagi?';
     }
+
+    showPhaseAlert.value = true;
+
+    updateTimerState({
+        isActive: false,
+        isCompleted: true,
+        isBreak: isBreak.value,
+        cyclesCompleted: cyclesCompleted.value,
+    });
+};
+
+const dismissPhaseAlert = () => {
+    showPhaseAlert.value = false;
+    updateTimerState({ widgetDismissed: true });
+};
+
+const handleStartBreak = () => {
+    showPhaseAlert.value = false;
+    startTimer();
 };
 
 const setPreset = (workMin, breakMin, modeLabel) => {
@@ -98,9 +163,8 @@ const setPreset = (workMin, breakMin, modeLabel) => {
     breakTime.value = breakMin * 60;
     isBreak.value = false;
     timeLeft.value = workTime.value;
+    clearTimerState();
 };
-
-const showSkipConfirm = ref(false);
 
 const skipPhase = () => {
     showSkipConfirm.value = false;
@@ -114,6 +178,10 @@ const skipPhase = () => {
         isBreak.value = false;
         timeLeft.value = workTime.value;
     }
+    updateTimerState({
+        isBreak: isBreak.value,
+        cyclesCompleted: cyclesCompleted.value,
+    });
 };
 
 const markAsComplete = () => {
@@ -121,19 +189,55 @@ const markAsComplete = () => {
         router.patch(`/tasks/${props.activeTask.id}`, {
             completed: true,
         }, {
-            onSuccess: () => router.visit('/focus'),
+            onSuccess: () => {
+                clearTimerState();
+                router.visit('/focus');
+            },
         });
     }
 };
 
+// === Visibility change ===
 const handleVisibilityChange = () => {
     if (document.visibilityState === 'visible' && isRunning.value) {
         updateRemainingTime();
     }
 };
 
+// === Load from localStorage on mount ===
 onMounted(() => {
     document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    const saved = getTimerState();
+    if (saved && !saved.isCompleted) {
+        // Restore preset times
+        const preset = presets.find(p => p.label === saved.presetMode);
+        if (preset) {
+            workTime.value = preset.work * 60;
+            breakTime.value = preset.break * 60;
+        }
+        isBreak.value = saved.isBreak || false;
+        presetMode.value = saved.presetMode || '25/5';
+        cyclesCompleted.value = saved.cyclesCompleted || 0;
+
+        if (saved.isActive && saved.endTime) {
+            // Timer was running — resume from endTime
+            const remaining = Math.max(0, Math.ceil((saved.endTime - Date.now()) / 1000));
+            if (remaining > 0) {
+                timeLeft.value = remaining;
+                startTimer();
+            } else {
+                // Timer expired while away
+                handlePhaseComplete();
+            }
+        } else if (saved.timeLeft > 0) {
+            // Timer was paused — resume from saved timeLeft
+            timeLeft.value = saved.timeLeft;
+        } else {
+            // No timer state — set default time
+            timeLeft.value = workTime.value;
+        }
+    }
 });
 
 onUnmounted(() => {
@@ -141,11 +245,44 @@ onUnmounted(() => {
     document.removeEventListener('visibilitychange', handleVisibilityChange);
 });
 
+// === Presets ===
 const presets = [
     { work: 25, break: 5, label: '25/5', name: 'Standard' },
     { work: 50, break: 10, label: '50/10', name: 'Extended' },
     { work: 15, break: 3, label: '15/3', name: 'Sprint' },
 ];
+
+// === Badge quadrant config ===
+const matrixConfig = {
+    do_first: { label: 'Do First', badgeClass: 'badge-red' },
+    schedule: { label: 'Do Next', badgeClass: 'badge-blue' },
+    delegate: { label: 'Hand Off', badgeClass: 'badge-amber' },
+    drop: { label: 'Ignore', badgeClass: 'badge-gray' },
+};
+
+const badgeLabel = computed(() => {
+    if (isBreak.value) return 'Istirahat';
+    const matrix = props.activeTask?.matrix;
+    return matrixConfig[matrix]?.label || 'Fokus';
+});
+
+const badgeDescription = computed(() => {
+    if (isBreak.value) return 'Istirahat sejenak sebelum lanjut.';
+    const matrix = props.activeTask?.matrix;
+    const labels = {
+        do_first: 'Do First, fokus sampai timer habis!',
+        schedule: 'Do Next, fokus sampai timer habis!',
+        delegate: 'Hand Off, fokus sampai timer habis!',
+        drop: 'Ignore, fokus sampai timer habis!',
+    };
+    return labels[matrix] || 'Fokus sampai timer habis!';
+});
+
+const badgeClass = computed(() => {
+    if (isBreak.value) return 'badge-emerald';
+    const matrix = props.activeTask?.matrix;
+    return matrixConfig[matrix]?.badgeClass || 'badge-blue';
+});
 </script>
 
 <template>
@@ -169,8 +306,8 @@ const presets = [
         <!-- Main Card -->
         <div class="max-w-lg mx-auto card p-5 sm:p-8 text-center">
             <!-- Mode Badge -->
-            <span :class="isBreak ? 'badge-emerald' : 'badge-blue'" class="mb-4 inline-flex">
-                {{ isBreak ? 'Istirahat' : 'Fokus' }}
+            <span :class="badgeClass" class="mb-4 inline-flex">
+                {{ badgeLabel }}
             </span>
 
             <!-- Task Title -->
@@ -178,7 +315,7 @@ const presets = [
                 {{ activeTask ? activeTask.title : 'Focus Session' }}
             </h1>
             <p v-if="activeTask" class="text-gray-400 text-[13px] mb-6">
-                Fokus penuh sampai timer habis.
+                {{ badgeDescription }}
             </p>
             <div v-else class="mb-6"></div>
 
@@ -286,6 +423,43 @@ const presets = [
                         <div class="flex justify-end gap-2 pt-3 border-t border-gray-100">
                             <button @click="showSkipConfirm = false" class="btn-ghost btn-sm">Batal</button>
                             <button @click="skipPhase" class="btn-primary btn-sm">Skip Sesi</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+    </Teleport>
+
+    <!-- Phase Complete Alert -->
+    <Teleport to="body">
+        <Transition
+            enter-active-class="duration-200 ease-out"
+            enter-from-class="opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="duration-150 ease-in"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0"
+        >
+            <div v-if="showPhaseAlert" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div class="absolute inset-0 bg-gray-900/30 backdrop-blur-sm"></div>
+                <div class="relative bg-surface rounded-card shadow-elevated border border-border w-full max-w-sm animate-slide-up">
+                    <div class="p-5">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-[15px] font-bold text-gray-900">{{ phaseAlertMessage }}</h3>
+                                <p class="text-[13px] text-gray-500">Siklus {{ cyclesCompleted }} selesai.</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-2 pt-3 border-t border-gray-100">
+                            <button @click="dismissPhaseAlert" class="btn-ghost btn-sm">Nanti Saja</button>
+                            <button @click="handleStartBreak" class="btn-primary btn-sm">
+                                {{ isBreak ? 'Mulai Istirahat' : 'Mulai Fokus' }}
+                            </button>
                         </div>
                     </div>
                 </div>
