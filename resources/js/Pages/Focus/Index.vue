@@ -399,23 +399,85 @@ const matrixConfig = {
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                             </svg>
                         </button>
-                        <div class="hidden lg:flex items-center gap-1">
+                        <!-- Action menu (⋯) -->
+                        <div class="relative">
                             <button
-                                v-for="matrix in ['do_first', 'schedule', 'delegate', 'drop']"
-                                :key="matrix"
-                                @click="assignMatrix(task.id, matrix)"
-                                :class="[
-                                    'px-2.5 py-1 text-[13px] font-semibold rounded-md transition',
-                                    matrixConfig[matrix].badgeClass,
-                                    matrixConfig[matrix].hoverClass,
-                                ]"
+                                @click.stop="toggleActionMenu(task.id)"
+                                class="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition"
+                                title="Aksi lainnya"
                             >
-                                {{ matrixConfig[matrix].label }}
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                                </svg>
                             </button>
+                            <!-- Dropdown -->
+                            <div
+                                v-if="openActionMenu === task.id"
+                                class="absolute right-0 top-full mt-1 bg-surface rounded-lg shadow-elevated border border-border z-30 py-1 min-w-[160px] animate-fade-in"
+                                @click.stop
+                            >
+                                <!-- Quadrant picker mode -->
+                                <template v-if="showQuadrantPicker === task.id">
+                                    <button
+                                        @click="closeQuadrantPicker()"
+                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 transition text-left"
+                                    >
+                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                                        </svg>
+                                        Kembali
+                                    </button>
+                                    <div class="border-t border-gray-100 dark:border-slate-700 my-1"></div>
+                                    <button
+                                        @click="moveToQuadrant(task.id, null)"
+                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 transition text-left"
+                                    >
+                                        <span class="w-2.5 h-2.5 rounded-full bg-gray-300 shrink-0"></span>
+                                        Inbox
+                                    </button>
+                                    <button
+                                        v-for="(config, matrix) in matrixConfig"
+                                        :key="matrix"
+                                        @click="moveToQuadrant(task.id, matrix)"
+                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 transition text-left"
+                                    >
+                                        <span :class="['w-2.5 h-2.5 rounded-full shrink-0', config.iconBg]"></span>
+                                        {{ config.label }}
+                                    </button>
+                                </template>
+                                <!-- Normal menu mode -->
+                                <template v-else>
+                                    <button
+                                        @click="openQuadrantPicker(task.id)"
+                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 transition text-left"
+                                    >
+                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                                        </svg>
+                                        Pindah Kuadran
+                                    </button>
+                                    <button
+                                        @click="startEditTask(task)"
+                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 transition text-left"
+                                    >
+                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                        Edit
+                                    </button>
+                                    <div class="border-t border-gray-100 dark:border-slate-700 my-1"></div>
+                                    <button
+                                        @click="deleteTask(task.id); closeActionMenu()"
+                                        class="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition text-left"
+                                    >
+                                        <svg class="w-4 h-4 text-red-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                        Hapus
+                                    </button>
+                                </template>
+                            </div>
                         </div>
-                        <button @click="deleteTask(task.id)" class="w-7 h-7 flex items-center justify-center rounded-md text-gray-300 dark:text-gray-600 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition text-xs font-bold">
-                            x
-                        </button>
                     </div>
                 </div>
                 </template>
@@ -560,7 +622,6 @@ const matrixConfig = {
 
                         <!-- Tasks -->
                         <draggable
-                            v-if="tasks.length > 0"
                             :list="tasks"
                             group="tasks"
                             item-key="id"
@@ -851,17 +912,17 @@ const matrixConfig = {
                             </li>
                             </template>
                             <template #footer>
-                            <div v-if="tasks.length > 5"
-                                class="sticky bottom-0 h-6 pointer-events-none"
-                                :class="{
-                                    'bg-gradient-to-t from-red-50 dark:from-red-900/20 to-transparent': key === 'do_first',
-                                    'bg-gradient-to-t from-blue-50 dark:from-blue-900/20 to-transparent': key === 'schedule',
-                                    'bg-gradient-to-t from-amber-50 dark:from-amber-900/20 to-transparent': key === 'delegate',
-                                    'bg-gradient-to-t from-gray-50 dark:from-slate-800 to-transparent': key === 'drop'
-                                }" />
+                                <p v-if="tasks.length === 0" class="text-[13px] text-gray-400 dark:text-gray-500 italic mt-1">Belum ada task</p>
+                                <div v-if="tasks.length > 5"
+                                    class="sticky bottom-0 h-6 pointer-events-none"
+                                    :class="{
+                                        'bg-gradient-to-t from-red-50 dark:from-red-900/20 to-transparent': key === 'do_first',
+                                        'bg-gradient-to-t from-blue-50 dark:from-blue-900/20 to-transparent': key === 'schedule',
+                                        'bg-gradient-to-t from-amber-50 dark:from-amber-900/20 to-transparent': key === 'delegate',
+                                        'bg-gradient-to-t from-gray-50 dark:from-slate-800 to-transparent': key === 'drop'
+                                    }" />
                             </template>
                         </draggable>
-                        <p v-else class="text-[13px] text-gray-400 dark:text-gray-500 italic mt-1">Belum ada task</p>
                     </div>
                 </div>
             </div>

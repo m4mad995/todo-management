@@ -58,7 +58,7 @@ const chartTooltip = computed(() => ({
     boxPadding: 4,
 }));
 
-const chartGridColor = computed(() => isDark.value ? '#1E293B' : '#F3F4F6');
+const chartGridColor = computed(() => isDark.value ? '#334155' : '#F3F4F6');
 const chartTickColor = computed(() => isDark.value ? '#94A3B8' : '#9CA3AF');
 
 const dayLabels = [
@@ -120,9 +120,9 @@ const toggleRoutine = (routineId) => {
 
 // Matrix badge class
 const matrixBadgeClass = {
-    do_first: 'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400',
-    schedule: 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
-    delegate: 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400',
+    do_first: 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:bg-red-900/30 dark:text-red-400',
+    schedule: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
+    delegate: 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400',
     drop: 'bg-gray-100 text-gray-500 dark:bg-slate-700 dark:text-gray-400',
 };
 
@@ -281,10 +281,10 @@ const matrixBarOptions = computed(() => ({
                 <Link href="/focus" class="btn-primary btn-sm">
                     + Tambah Task
                 </Link>
-                <Link href="/routines" class="btn-primary btn-sm !bg-blue-500 hover:!bg-blue-600">
+                <Link href="/routines" class="btn-primary btn-sm !bg-blue-50 dark:bg-blue-900/200 hover:!bg-blue-600">
                     + Buat Rutinitas
                 </Link>
-                <Link href="/agenda" class="btn-primary btn-sm !bg-amber-500 hover:!bg-amber-600">
+                <Link href="/agenda" class="btn-primary btn-sm !bg-amber-50 dark:bg-amber-900/200 hover:!bg-amber-600">
                     + Tambah Agenda
                 </Link>
             </div>
@@ -296,23 +296,23 @@ const matrixBarOptions = computed(() => ({
             <!-- Stats Row -->
             <div class="md:col-span-2 lg:col-span-3 grid grid-cols-3 gap-2">
                 <!-- Stats: Selesai Hari Ini -->
-                <div class="rounded-btn border border-emerald-200 bg-emerald-50/50 p-2 sm:p-2.5 flex flex-col items-center text-center gap-0.5">
-                    <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-700">Selesai</p>
+                <div class="rounded-btn border border-emerald-200 bg-emerald-50/50 dark:bg-emerald-900/20 p-2 sm:p-2.5 flex flex-col items-center text-center gap-0.5">
+                    <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Selesai</p>
                     <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 leading-tight">{{ stats.completedToday }}</p>
                     <p class="text-[9px] sm:text-[10px] text-emerald-600/60 truncate max-w-full">{{ stats.totalToday }} total</p>
                 </div>
 
                 <!-- Stats: Rate -->
-                <div class="rounded-btn border border-indigo-200 bg-indigo-50/50 p-2 sm:p-2.5 flex flex-col items-center text-center gap-0.5">
-                    <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-indigo-700">Rate</p>
+                <div class="rounded-btn border border-indigo-200 bg-indigo-50/50 dark:bg-indigo-900/20 p-2 sm:p-2.5 flex flex-col items-center text-center gap-0.5">
+                    <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-400">Rate</p>
                     <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 leading-tight">{{ stats.completionRate }}%</p>
                     <p class="text-[9px] sm:text-[10px] text-indigo-600/60 truncate max-w-full">semua task</p>
                 </div>
 
                 <!-- Stats: Streak -->
-                <div class="rounded-btn border border-amber-200 bg-amber-50/50 p-2 sm:p-2.5 flex flex-col items-center text-center gap-0.5">
-                    <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-amber-700">Streak</p>
-                    <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 leading-tight">{{ stats.currentStreak }} <span class="text-[9px] sm:text-[10px] font-medium text-amber-700/60">hari</span></p>
+                <div class="rounded-btn border border-amber-200 bg-amber-50 dark:bg-amber-900/20/50 dark:bg-amber-900/20 p-2 sm:p-2.5 flex flex-col items-center text-center gap-0.5">
+                    <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Streak</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 leading-tight">{{ stats.currentStreak }} <span class="text-[9px] sm:text-[10px] font-medium text-amber-700 dark:text-amber-400/60">hari</span></p>
                     <p class="text-[9px] sm:text-[10px] text-amber-600/60 truncate max-w-full">task + rutin</p>
                 </div>
             </div>
@@ -320,7 +320,7 @@ const matrixBarOptions = computed(() => ({
             <!-- Perlu Dikerjakan (full width) -->
             <div class="card border-l-[3px] border-l-red-500 p-4 md:col-span-2 lg:col-span-3">
                 <div class="flex items-center gap-2.5 mb-2.5">
-                    <div class="w-6 h-6 rounded-md bg-red-50 flex items-center justify-center shrink-0">
+                    <div class="w-6 h-6 rounded-md bg-red-50 dark:bg-red-900/20 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
@@ -333,7 +333,7 @@ const matrixBarOptions = computed(() => ({
                         v-for="task in urgentTasks"
                         :key="task.id"
                         href="/focus"
-                        class="flex items-center justify-between px-3 py-2 rounded-btn hover:bg-red-50/40 transition group"
+                        class="flex items-center justify-between px-3 py-2 rounded-btn hover:bg-red-50 dark:hover:bg-red-900/20 transition group"
                     >
                         <span class="text-[14px] text-gray-800 dark:text-gray-200 truncate">{{ task.title }}</span>
                         <span class="shrink-0 text-[12px] font-semibold text-red-400 group-hover:text-red-500 transition">
@@ -349,7 +349,7 @@ const matrixBarOptions = computed(() => ({
             <!-- Rutinitas Hari Ini -->
             <div class="card border-l-[3px] border-l-blue-500 p-4">
                 <div class="flex items-center gap-2.5 mb-2.5">
-                    <div class="w-6 h-6 rounded-md bg-blue-50 flex items-center justify-center shrink-0">
+                    <div class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
@@ -361,7 +361,7 @@ const matrixBarOptions = computed(() => ({
                     <div
                         v-for="routine in todayRoutines"
                         :key="routine.id"
-                        class="flex items-center gap-2.5 px-2.5 py-2 rounded-btn hover:bg-blue-50/40 transition group"
+                        class="flex items-center gap-2.5 px-2.5 py-2 rounded-btn hover:bg-blue-50 dark:hover:bg-blue-900/20 transition group"
                     >
                         <button
                             @click="toggleRoutine(routine.id)"
@@ -381,7 +381,7 @@ const matrixBarOptions = computed(() => ({
                                         :key="d.val"
                                         :class="[
                                             'w-5 h-5 rounded-md flex items-center justify-center font-bold text-[10px]',
-                                            routine.days_of_week.includes(d.val) ? 'bg-blue-100 text-blue-700' : 'text-gray-300 dark:text-gray-600'
+                                            routine.days_of_week.includes(d.val) ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 dark:text-blue-400' : 'text-gray-300 dark:text-gray-600'
                                         ]"
                                     >
                                         {{ d.label[0] }}
@@ -403,7 +403,7 @@ const matrixBarOptions = computed(() => ({
             <!-- Agenda Mendatang -->
             <div class="card border-l-[3px] border-l-amber-500 p-4 lg:col-span-2">
                 <Link href="/agenda" class="flex items-center gap-2.5 mb-2.5 group">
-                    <div class="w-6 h-6 rounded-md bg-amber-50 flex items-center justify-center shrink-0">
+                    <div class="w-6 h-6 rounded-md bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
@@ -414,12 +414,12 @@ const matrixBarOptions = computed(() => ({
                     <div
                         v-for="agenda in upcomingAgendas"
                         :key="agenda.id"
-                        class="flex items-center gap-3 px-3 py-2 rounded-btn hover:bg-amber-50/40 transition"
+                        class="flex items-center gap-3 px-3 py-2 rounded-btn hover:bg-amber-50 dark:hover:bg-amber-900/20 transition"
                     >
                         <span
                             :class="[
                                 'text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0',
-                                agenda.is_today ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600'
+                                agenda.is_today ? 'bg-red-50 dark:bg-red-900/20 text-red-600' : 'bg-amber-50 dark:bg-amber-900/20 text-amber-600'
                             ]"
                         >
                             {{ agenda.date_label }}
@@ -433,7 +433,7 @@ const matrixBarOptions = computed(() => ({
                 <div v-else class="text-center py-4">
                     <p class="text-[13px] text-gray-400 dark:text-gray-500">Tidak ada agenda mendatang.</p>
                 </div>
-                <Link href="/agenda" class="flex items-center justify-center gap-1.5 pt-3 border-t border-gray-100 dark:border-slate-700 mt-3 text-[13px] text-amber-600 hover:text-amber-700 font-medium transition">
+                <Link href="/agenda" class="flex items-center justify-center gap-1.5 pt-3 border-t border-gray-100 dark:border-slate-700 mt-3 text-[13px] text-amber-600 hover:text-amber-700 dark:text-amber-400 font-medium transition">
                     Lihat Semua Agenda →
                 </Link>
             </div>
@@ -441,7 +441,7 @@ const matrixBarOptions = computed(() => ({
             <!-- Chart: Tren 7 Hari (Line/Area) -->
             <div class="card border-l-[3px] border-l-blue-500 p-4 md:col-span-2 lg:col-span-2">
                 <div class="flex items-center gap-2.5 mb-3">
-                    <div class="w-6 h-6 rounded-md bg-blue-50 flex items-center justify-center shrink-0">
+                    <div class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                         </svg>
@@ -522,7 +522,7 @@ const matrixBarOptions = computed(() => ({
                     <div
                         v-for="task in stats.recentCompleted"
                         :key="task.id"
-                        class="flex items-center gap-2.5 px-2.5 py-2 rounded-btn hover:bg-emerald-50/40 transition"
+                        class="flex items-center gap-2.5 px-2.5 py-2 rounded-btn hover:bg-emerald-50/40 dark:hover:bg-emerald-900/20 transition"
                     >
                         <div class="w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
                             <svg class="w-3 h-3 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">

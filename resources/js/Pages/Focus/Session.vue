@@ -191,6 +191,7 @@ const markAsComplete = () => {
         }, {
             onSuccess: () => {
                 clearTimerState();
+                window.dispatchEvent(new Event('timer-cleared'));
                 router.visit('/focus');
             },
         });

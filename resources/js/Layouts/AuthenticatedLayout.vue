@@ -344,6 +344,25 @@ onMounted(() => {
             loadTimerState();
         }
     });
+
+    // Listen for timer-cleared event from Session.vue
+    window.addEventListener('timer-cleared', () => {
+        clearInterval(timerInterval);
+        timerState.value = {
+            endTime: null,
+            taskId: null,
+            taskTitle: '',
+            taskMatrix: null,
+            presetMode: '25/5',
+            isBreak: false,
+            cyclesCompleted: 0,
+            isActive: false,
+            isPaused: false,
+            isCompleted: false,
+            widgetDismissed: false,
+        };
+        timerTimeLeft.value = 0;
+    });
 });
 
 onUnmounted(() => {
@@ -545,7 +564,7 @@ onUnmounted(() => {
                         </div>
 
                         <!-- Type Tabs -->
-                        <div class="flex gap-1 p-1 bg-gray-100 rounded-btn mb-5">
+                        <div class="flex gap-1 p-1 bg-gray-100 dark:bg-slate-700 rounded-btn mb-5">
                             <button
                                 v-for="tab in [
                                     { key: 'focus', label: 'Fokus' },
@@ -558,8 +577,8 @@ onUnmounted(() => {
                                 :class="[
                                     'flex-1 py-2 text-sm font-semibold rounded-md transition-all duration-150',
                                     quickForm.type === tab.key
-                                        ? 'bg-surface text-gray-900 shadow-sm'
-                                        : 'text-gray-500 hover:text-gray-700'
+                                        ? 'bg-surface dark:bg-slate-800 text-gray-900 dark:text-gray-100 shadow-sm'
+                                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                                 ]"
                             >
                                 {{ tab.label }}
