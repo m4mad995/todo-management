@@ -660,7 +660,7 @@ onUnmounted(() => {
         >
             <div
                 v-if="shouldShowWidget || shouldShowCompletedWidget"
-                class="fixed bottom-20 right-4 z-50 timer-widget"
+                class="fixed bottom-20 right-4 z-50 timer-widget max-w-[calc(100vw-2rem)]"
             >
                 <!-- Completed state -->
                 <div v-if="shouldShowCompletedWidget" class="bg-surface rounded-2xl shadow-elevated border border-border overflow-hidden animate-slide-up">
@@ -690,7 +690,7 @@ onUnmounted(() => {
                     <!-- Collapsed (default) -->
                     <div
                         v-if="!widgetExpanded"
-                        @click="toggleWidgetExpand"
+                        @click.stop="toggleWidgetExpand"
                         class="bg-surface rounded-2xl shadow-elevated border border-border px-4 py-3 cursor-pointer hover:shadow-card-hover transition-all duration-200"
                     >
                         <div class="flex items-center gap-2">
@@ -704,7 +704,7 @@ onUnmounted(() => {
                         v-else
                         class="bg-surface rounded-2xl shadow-elevated border border-border overflow-hidden animate-slide-up"
                     >
-                        <div class="p-4 min-w-[240px]">
+                        <div class="p-4 w-[min(280px,calc(100vw-2rem))]">
                             <div class="flex items-center justify-between mb-2">
                                 <div class="flex items-center gap-2">
                                     <div :class="[dotColor, 'w-2 h-2 rounded-full animate-pulse']"></div>
@@ -723,7 +723,7 @@ onUnmounted(() => {
 
                             <!-- Action buttons -->
                             <div class="flex items-center gap-1.5 mb-3">
-                                <button @click="widgetToggleTimer" class="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium transition" :class="timerState.isActive ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30' : 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30'">
+                                <button @click="widgetToggleTimer" class="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium transition overflow-hidden truncate" :class="timerState.isActive ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30' : 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30'">
                                     <svg v-if="timerState.isActive" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
@@ -732,13 +732,13 @@ onUnmounted(() => {
                                     </svg>
                                     {{ timerState.isActive ? 'Pause' : 'Play' }}
                                 </button>
-                                <button @click="showResetConfirm = true" class="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition">
+                                <button @click="showResetConfirm = true" class="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition overflow-hidden truncate">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                     </svg>
                                     Reset
                                 </button>
-                                <button @click="widgetSkipPhase" class="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition">
+                                <button @click="widgetSkipPhase" class="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition overflow-hidden truncate">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
                                     </svg>
