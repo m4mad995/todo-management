@@ -22,6 +22,7 @@ class Task extends Model
         'is_completed',
         'is_habit',
         'streak_count',
+        'sort_order',
     ];
 
     protected $casts = [

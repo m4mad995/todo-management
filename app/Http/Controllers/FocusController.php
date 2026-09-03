@@ -13,7 +13,7 @@ class FocusController extends Controller
     public function index()
     {
         $userId = Auth::id();
-        $tasks = Task::with('subTasks')->where('user_id', $userId)->whereNull('completed_at')->get();
+        $tasks = Task::with('subTasks')->where('user_id', $userId)->whereNull('completed_at')->orderBy('sort_order')->get();
 
         $dailyTargets = DailyTarget::where('user_id', $userId)
             ->where('date', now()->toDateString())

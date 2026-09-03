@@ -14,7 +14,7 @@ class TaskController extends Controller
     public function index()
     {
         $userId = Auth::id();
-        $tasks = Task::with('subTasks')->where('user_id', $userId)->whereNull('completed_at')->get();
+        $tasks = Task::with('subTasks')->where('user_id', $userId)->whereNull('completed_at')->orderBy('sort_order')->get();
 
         return Inertia::render('Focus/Index', [
             'unprocessedTasks' => $tasks->whereNull('matrix')->values(), // <-- Task dari Topbar
@@ -78,6 +78,23 @@ class TaskController extends Controller
     {
         if ($task->user_id !== Auth::id()) abort(403);
         $task->delete();
+
+        return back();
+    }
+
+    public function reorder(Request $request)
+    {
+        $validated = $request->validate([
+            'tasks' => 'required|array',
+            'tasks.*.id' => 'required|string',
+            'tasks.*.sort_order' => 'required|integer',
+        ]);
+
+        foreach ($validated['tasks'] as $task) {
+            Task::where('id', $task['id'])
+                ->where('user_id', Auth::id())
+                ->update(['sort_order' => $task['sort_order']]);
+        }
 
         return back();
     }

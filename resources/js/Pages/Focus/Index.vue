@@ -168,9 +168,25 @@ const closeQuadrantPicker = () => {
 // Drag & drop handler
 const onDragChange = (event, targetKey) => {
     if (event.added) {
+        // Task dipindah ke kuadran lain
         const taskId = event.added.element.id;
         const newMatrix = targetKey === 'unprocessed' ? null : targetKey;
         router.patch(`/tasks/${taskId}`, { matrix: newMatrix });
+    }
+    if (event.moved) {
+        // Task di-reorder dalam kuadran yang sama
+        const listMap = {
+            unprocessed: unprocessedTasks,
+            do_first: doFirst,
+            schedule: schedule,
+            delegate: delegate,
+            drop: drop,
+        };
+        const list = listMap[targetKey];
+        if (list) {
+            const tasks = list.value.map((t, i) => ({ id: t.id, sort_order: i }));
+            router.patch('/tasks/reorder', { tasks });
+        }
     }
 };
 
