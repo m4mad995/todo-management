@@ -5,6 +5,7 @@ import BottomNav from '@/Components/BottomNav.vue';
 
 const isQuickModalOpen = ref(false);
 const topbarInput = ref('');
+const quickInput = ref(null);
 const page = usePage();
 const showMobileMenu = ref(false);
 const showUserDropdown = ref(false);
@@ -48,19 +49,76 @@ const topbarBadge = computed(() => {
     return badges[topbarSection.value] || badges.focus;
 });
 
+const hasQuickDraft = computed(() => {
+    try {
+        const raw = localStorage.getItem(QUICK_DRAFT_KEY);
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+        return data.title && data.title.trim() && (Date.now() - data.savedAt <= DRAFT_EXPIRY_MS);
+    } catch { return false; }
+});
+
 const topbarEndpoints = {
     focus: '/focus',
     routine: '/routines',
     agenda: '/agenda',
 };
 
+// === Quick Entry Draft Save ===
+const QUICK_DRAFT_KEY = 'draft-quick-entry';
+const DRAFT_EXPIRY_MS = 5 * 60 * 1000; // 5 menit
+
+const saveQuickDraft = () => {
+    localStorage.setItem(QUICK_DRAFT_KEY, JSON.stringify({
+        type: quickForm.type,
+        title: quickForm.title,
+        quadrant: quickForm.quadrant,
+        repeat_type: quickForm.repeat_type,
+        selected_days: quickForm.selected_days,
+        event_date: quickForm.event_date,
+        event_time: quickForm.event_time,
+        savedAt: Date.now(),
+    }));
+};
+
+const loadQuickDraft = () => {
+    try {
+        const raw = localStorage.getItem(QUICK_DRAFT_KEY);
+        if (!raw) return null;
+        const data = JSON.parse(raw);
+        if (Date.now() - data.savedAt > DRAFT_EXPIRY_MS) {
+            localStorage.removeItem(QUICK_DRAFT_KEY);
+            return null;
+        }
+        return data;
+    } catch { return null; }
+};
+
+const clearQuickDraft = () => {
+    localStorage.removeItem(QUICK_DRAFT_KEY);
+};
+
 const openQuickModal = (type = null, initialTitle = '') => {
     quickForm.reset();
-    quickForm.type = type || getCurrentSection();
+    const draft = loadQuickDraft();
+    if (draft) {
+        quickForm.type = draft.type || 'focus';
+        quickForm.title = draft.title || '';
+        quickForm.quadrant = draft.quadrant || 'none';
+        quickForm.repeat_type = draft.repeat_type || 'daily';
+        quickForm.selected_days = draft.selected_days || [];
+        quickForm.event_date = draft.event_date || '';
+        quickForm.event_time = draft.event_time || '';
+    } else {
+        quickForm.type = type || getCurrentSection();
+    }
     if (initialTitle) {
         quickForm.title = initialTitle;
     }
     isQuickModalOpen.value = true;
+    setTimeout(() => {
+        quickInput.value?.focus();
+    }, 100);
 };
 
 const handleTopbarSubmit = () => {
@@ -90,6 +148,7 @@ const submitQuickForm = () => {
     quickForm.post(endpoints[quickForm.type], {
         onSuccess: () => {
             isQuickModalOpen.value = false;
+            clearQuickDraft();
             quickForm.reset();
         },
     });
@@ -159,7 +218,7 @@ const shouldShowTopbarIcon = computed(() => {
 });
 
 const shouldShowCompletedWidget = computed(() => {
-    return timerState.value.isCompleted && !isOnSessionPage.value;
+    return timerState.value.isCompleted && !isOnSessionPage.value && !timerState.value.widgetDismissed;
 });
 
 const dotColor = computed(() => {
@@ -333,6 +392,26 @@ const widgetSkipPhase = () => {
     widgetExpanded.value = false;
 };
 
+const stopSession = () => {
+    clearInterval(timerInterval);
+    timerState.value = {
+        endTime: null,
+        taskId: null,
+        taskTitle: '',
+        taskMatrix: null,
+        presetMode: '25/5',
+        isBreak: false,
+        cyclesCompleted: 0,
+        isActive: false,
+        isPaused: false,
+        isCompleted: false,
+        widgetDismissed: false,
+    };
+    timerTimeLeft.value = 0;
+    localStorage.removeItem(STORAGE_KEY);
+    window.dispatchEvent(new Event('timer-cleared'));
+};
+
 onMounted(() => {
     document.addEventListener('click', closeUserDropdown);
     document.addEventListener('click', collapseWidget);
@@ -432,12 +511,13 @@ onUnmounted(() => {
             <div class="p-5 pt-0">
                 <button
                     @click="openQuickModal()"
-                    class="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-btn bg-blue-600 text-white text-[15px] font-medium shadow-lg shadow-blue-600/25 hover:bg-blue-700 active:scale-[0.98] transition-all duration-150"
+                    class="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-btn bg-blue-600 text-white text-[15px] font-medium shadow-lg shadow-blue-600/25 hover:bg-blue-700 active:scale-[0.98] transition-all duration-150 relative"
                 >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                     </svg>
                     New Entry
+                    <span v-if="hasQuickDraft" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-500 rounded-full"></span>
                 </button>
             </div>
         </aside>
@@ -533,7 +613,7 @@ onUnmounted(() => {
         </div>
 
         <!-- BOTTOM NAVBAR (mobile only) -->
-        <BottomNav :isQuickModalOpen="isQuickModalOpen" @openQuickModal="openQuickModal()" />
+        <BottomNav :isQuickModalOpen="isQuickModalOpen" :hasDraft="hasQuickDraft" @openQuickModal="openQuickModal()" />
     </div>
 
     <!-- QUICK ENTRY MODAL -->
@@ -548,7 +628,7 @@ onUnmounted(() => {
         >
             <div v-if="isQuickModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
                 <!-- Backdrop -->
-                <div class="absolute inset-0 bg-gray-900/30 backdrop-blur-sm" @click="isQuickModalOpen = false"></div>
+                <div class="absolute inset-0 bg-gray-900/30 backdrop-blur-sm" @click="saveQuickDraft(); isQuickModalOpen = false"></div>
 
                 <!-- Modal -->
                 <div class="relative bg-surface rounded-card shadow-elevated border border-border w-full max-w-md animate-slide-up">
@@ -556,7 +636,7 @@ onUnmounted(() => {
                         <!-- Header -->
                         <div class="flex items-center justify-between mb-5">
                             <h3 class="text-lg font-bold text-gray-900">New Entry</h3>
-                            <button @click="isQuickModalOpen = false" class="text-gray-400 hover:text-gray-600 transition p-1 -m-1">
+                            <button @click="saveQuickDraft(); isQuickModalOpen = false" class="text-gray-400 hover:text-gray-600 transition p-1 -m-1">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
@@ -590,6 +670,7 @@ onUnmounted(() => {
                             <div>
                                 <label class="label">Judul / Kegiatan</label>
                                 <input
+                                    ref="quickInput"
                                     v-model="quickForm.title"
                                     type="text"
                                     required
@@ -647,7 +728,7 @@ onUnmounted(() => {
 
                             <!-- Actions -->
                             <div class="flex justify-end gap-2 pt-3 border-t border-gray-100">
-                                <button type="button" @click="isQuickModalOpen = false" class="btn-ghost btn-sm">
+                                <button type="button" @click="saveQuickDraft(); isQuickModalOpen = false" class="btn-ghost btn-sm">
                                     Batal
                                 </button>
                                 <button type="submit" :disabled="quickForm.processing" class="btn-primary btn-sm">
@@ -764,6 +845,10 @@ onUnmounted(() => {
                                     Skip
                                 </button>
                             </div>
+
+                            <button @click="stopSession" class="w-full py-2 text-sm font-semibold text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-btn transition mt-2">
+                                Hentikan Sesi
+                            </button>
 
                             <button @click="navigateToSession" class="w-full btn btn-primary btn-sm text-xs">
                                 Kembali ke Sesi

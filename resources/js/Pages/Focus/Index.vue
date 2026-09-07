@@ -70,7 +70,20 @@ watch(() => props.doFirst.length, (newLength) => {
 onMounted(() => {
     document.addEventListener('click', closeActionMenu);
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeActionMenu();
+        if (e.key === 'Escape') {
+            closeActionMenu();
+            // Close add forms with draft save
+            if (showAddFor.value) {
+                saveDraft(`draft-add-${showAddFor.value}`, addTitle.value);
+                showAddFor.value = null;
+                addTitle.value = '';
+            }
+            if (showSubTaskInput.value) {
+                saveDraft(`draft-subtask-${showSubTaskInput.value}`, newSubTaskTitle.value);
+                showSubTaskInput.value = null;
+                newSubTaskTitle.value = '';
+            }
+        }
     });
 });
 
@@ -103,13 +116,54 @@ const showAddFor = ref(null);
 const addTitle = ref('');
 const addInput = ref(null);
 
+// === Draft save system ===
+const DRAFT_EXPIRY_MS = 5 * 60 * 1000; // 5 menit
+
+const saveDraft = (key, text) => {
+    if (text && text.trim()) {
+        localStorage.setItem(key, JSON.stringify({ text, savedAt: Date.now() }));
+    }
+};
+
+const loadDraft = (key) => {
+    try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return '';
+        const data = JSON.parse(raw);
+        if (Date.now() - data.savedAt > DRAFT_EXPIRY_MS) {
+            localStorage.removeItem(key);
+            return '';
+        }
+        return data.text || '';
+    } catch { return ''; }
+};
+
+const clearDraft = (key) => {
+    localStorage.removeItem(key);
+};
+
+const hasDraft = (key) => {
+    try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+        return data.text && data.text.trim() && (Date.now() - data.savedAt <= DRAFT_EXPIRY_MS);
+    } catch { return false; }
+};
+
+// === Click-outside handler ===
+// Click outside: input tetap tampil, hanya blur. User bisa klik ✕ atau Escape untuk close.
+const closeAddForm = () => {};
+const closeSubTaskForm = () => {};
+
 const toggleAddForm = (matrix) => {
     if (showAddFor.value === matrix) {
+        saveDraft(`draft-add-${matrix}`, addTitle.value);
         showAddFor.value = null;
         addTitle.value = '';
     } else {
         showAddFor.value = matrix;
-        addTitle.value = '';
+        addTitle.value = loadDraft(`draft-add-${matrix}`);
         nextTick(() => {
             const el = Array.isArray(addInput.value)
                 ? addInput.value.find(Boolean)
@@ -122,6 +176,7 @@ const toggleAddForm = (matrix) => {
 const submitDirectAdd = (matrixName) => {
     if (!addTitle.value.trim()) return;
     router.post('/tasks', { title: addTitle.value.trim(), matrix: matrixName });
+    clearDraft(`draft-add-${matrixName}`);
     addTitle.value = '';
     showAddFor.value = null;
 };
@@ -247,11 +302,12 @@ const toggleExpand = (taskId) => {
 
 const toggleSubTaskInput = (itemId) => {
     if (showSubTaskInput.value === itemId) {
+        saveDraft(`draft-subtask-${itemId}`, newSubTaskTitle.value);
         showSubTaskInput.value = null;
         newSubTaskTitle.value = '';
     } else {
         showSubTaskInput.value = itemId;
-        newSubTaskTitle.value = '';
+        newSubTaskTitle.value = loadDraft(`draft-subtask-${itemId}`);
         nextTick(() => {
             const el = Array.isArray(subTaskInput.value)
                 ? subTaskInput.value.find(Boolean)
@@ -264,6 +320,7 @@ const toggleSubTaskInput = (itemId) => {
 const addSubTask = (taskId) => {
     if (!newSubTaskTitle.value.trim()) return;
     router.post(`/tasks/${taskId}/subtasks`, { title: newSubTaskTitle.value.trim() });
+    clearDraft(`draft-subtask-${taskId}`);
     newSubTaskTitle.value = '';
     showSubTaskInput.value = null;
     expandedTask.value = taskId;
@@ -415,8 +472,26 @@ const matrixConfig = {
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                             </svg>
                         </button>
-                        <!-- Action menu (⋯) -->
-                        <div class="relative">
+                        <!-- Badge buttons (desktop only) -->
+                        <div class="hidden lg:flex items-center gap-1">
+                            <button
+                                v-for="matrix in ['do_first', 'schedule', 'delegate', 'drop']"
+                                :key="matrix"
+                                @click="assignMatrix(task.id, matrix)"
+                                :class="[
+                                    'px-2.5 py-1 text-[13px] font-semibold rounded-md transition',
+                                    matrixConfig[matrix].badgeClass,
+                                    matrixConfig[matrix].hoverClass,
+                                ]"
+                            >
+                                {{ matrixConfig[matrix].label }}
+                            </button>
+                            <button @click="deleteTask(task.id)" class="w-7 h-7 flex items-center justify-center rounded-md text-gray-300 dark:text-gray-600 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition text-xs font-bold">
+                                x
+                            </button>
+                        </div>
+                        <!-- Action menu (⋯) — mobile/tablet only -->
+                        <div class="relative lg:hidden">
                             <button
                                 @click.stop="toggleActionMenu(task.id)"
                                 class="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition"
@@ -593,7 +668,7 @@ const matrixConfig = {
                     <span class="section-title">Action Matrix</span>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" @click="closeAddForm">
                     <div
                         v-for="(tasks, key) in { do_first: doFirst, schedule: schedule, delegate: delegate, drop: drop }"
                         :key="key"
@@ -609,20 +684,21 @@ const matrixConfig = {
                                 {{ matrixConfig[key].label }}
                             </span>
                             <button
-                                @click="toggleAddForm(key)"
+                                @click.stop="toggleAddForm(key)"
                                 :class="[
-                                    'text-[13px] font-semibold px-2 py-0.5 rounded-md transition',
+                                    'text-[13px] font-semibold px-2 py-0.5 rounded-md transition relative',
                                     matrixConfig[key].textClass,
                                     matrixConfig[key].hoverClass,
                                 ]"
                             >
                                 + Add
+                                <span v-if="hasDraft(`draft-add-${key}`)" class="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full"></span>
                             </button>
                         </div>
 
                         <!-- Inline Add Form -->
-                        <div v-if="showAddFor === key" class="mb-2 animate-fade-in">
-                            <form @submit.prevent="submitDirectAdd(key)" class="flex gap-1.5">
+                        <div v-if="showAddFor === key" class="mb-2 animate-fade-in add-form-wrapper" @click.stop>
+                            <form @submit.prevent="submitDirectAdd(key)" class="flex gap-1.5 items-center">
                                 <input
                                     v-model="addTitle"
                                     ref="addInput"
@@ -632,6 +708,9 @@ const matrixConfig = {
                                 />
                                 <button type="submit" class="btn-primary btn-sm !px-2.5 !py-1.5 text-[13px]">
                                     OK
+                                </button>
+                                <button type="button" @click="saveDraft('draft-add-' + key, addTitle); showAddFor = null; addTitle = ''" class="w-7 h-7 flex items-center justify-center rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition text-xs">
+                                    ✕
                                 </button>
                             </form>
                         </div>
@@ -645,7 +724,7 @@ const matrixConfig = {
                             ghost-class="opacity-30"
                             chosen-class="shadow-lg"
                             class="space-y-1.5 flex-1 max-h-[240px] overflow-y-auto overflow-x-hidden scroll-hidden relative"
-                            @click="closeActionMenu"
+                            @click="closeActionMenu(); closeSubTaskForm($event)"
                             @change="(evt) => onDragChange(evt, key)"
                         >
                             <template #item="{ element: item }">
@@ -834,9 +913,10 @@ const matrixConfig = {
                                 </div>
                                 <div
                                     v-if="showSubTaskInput === item.id"
-                                    class="mt-2 ml-7 animate-fade-in"
+                                    class="mt-2 ml-7 animate-fade-in add-form-wrapper"
+                                    @click.stop
                                 >
-                                    <form @submit.prevent="addSubTask(item.id)" class="flex gap-1.5">
+                                    <form @submit.prevent="addSubTask(item.id)" class="flex gap-1.5 items-center">
                                         <input
                                             v-model="newSubTaskTitle"
                                             type="text"
@@ -846,6 +926,9 @@ const matrixConfig = {
                                         />
                                         <button type="submit" class="btn-primary btn-sm !px-2.5 !py-1.5 text-[13px]">
                                             OK
+                                        </button>
+                                        <button type="button" @click="saveDraft('draft-subtask-' + item.id, newSubTaskTitle); showSubTaskInput = null; newSubTaskTitle = ''" class="w-7 h-7 flex items-center justify-center rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition text-xs">
+                                            ✕
                                         </button>
                                     </form>
                                 </div>

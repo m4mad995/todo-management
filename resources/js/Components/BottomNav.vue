@@ -6,6 +6,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    hasDraft: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const emit = defineEmits(['openQuickModal']);
@@ -63,11 +67,12 @@ const navItems = [
                     <!-- FAB (+) -->
                     <button @click="emit('openQuickModal')" class="flex-1 flex flex-col items-center justify-center h-16 relative z-10 transition-[color] duration-300"
                         :class="isQuickModalOpen ? 'text-blue-600' : 'text-gray-400'">
-                        <div class="flex items-center justify-center rounded-full transition-[width,height,margin,box-shadow,border-color] duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]"
+                        <div class="flex items-center justify-center rounded-full transition-[width,height,margin,box-shadow,border-color] duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] relative"
                             :class="isQuickModalOpen ? 'w-12 h-12 -mt-6 bg-blue-600 border-2 border-blue-600 shadow-lg' : 'w-8 h-8 bg-blue-600 text-white'">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                             </svg>
+                            <span v-if="hasDraft" class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-surface"></span>
                         </div>
                         <span class="text-[10px] transition-[color,font-weight] duration-300 mt-1"
                             :class="isQuickModalOpen ? 'font-bold text-blue-600' : 'font-semibold'">Baru</span>

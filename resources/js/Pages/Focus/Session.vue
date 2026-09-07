@@ -22,6 +22,8 @@ const cyclesCompleted = ref(0);
 const showSkipConfirm = ref(false);
 const showPhaseAlert = ref(false);
 const phaseAlertMessage = ref('');
+const showTimerSwitchConfirm = ref(false);
+const timerSwitchInfo = ref({ taskTitle: '', timeLeft: 0 });
 
 let timerInterval = null;
 let endTime = null;
@@ -198,6 +200,36 @@ const markAsComplete = () => {
     }
 };
 
+// === Stop Session ===
+const stopSession = () => {
+    pauseTimer();
+    clearTimerState();
+    window.dispatchEvent(new Event('timer-cleared'));
+    timeLeft.value = workTime.value;
+    cyclesCompleted.value = 0;
+    isBreak.value = false;
+};
+
+// === Timer Switch Handlers ===
+const handleTransferTime = () => {
+    const saved = getTimerState();
+    const remaining = saved.timeLeft || Math.max(0, Math.ceil((saved.endTime - Date.now()) / 1000));
+    clearTimerState();
+    window.dispatchEvent(new Event('timer-cleared'));
+    showTimerSwitchConfirm.value = false;
+    timeLeft.value = remaining;
+};
+
+const handleStartFresh = () => {
+    clearTimerState();
+    window.dispatchEvent(new Event('timer-cleared'));
+    showTimerSwitchConfirm.value = false;
+};
+
+const handleTimerCancel = () => {
+    showTimerSwitchConfirm.value = false;
+};
+
 // === Visibility change ===
 const handleVisibilityChange = () => {
     if (document.visibilityState === 'visible' && isRunning.value) {
@@ -211,7 +243,19 @@ onMounted(() => {
 
     const saved = getTimerState();
     if (saved && !saved.isCompleted) {
-        // Restore preset times
+        // Check if timer is for a DIFFERENT task
+        if ((saved.isActive || saved.isPaused) && saved.taskId && saved.taskId !== props.activeTask?.id) {
+            // Timer aktif untuk task BERBEDA — tampilkan popup konfirmasi
+            const remaining = saved.timeLeft || Math.max(0, Math.ceil((saved.endTime - Date.now()) / 1000));
+            showTimerSwitchConfirm.value = true;
+            timerSwitchInfo.value = {
+                taskTitle: saved.taskTitle,
+                timeLeft: remaining,
+            };
+            return; // Jangan resume timer, tunggu user pilih
+        }
+
+        // Same task or no task — restore state
         const preset = presets.find(p => p.label === saved.presetMode);
         if (preset) {
             workTime.value = preset.work * 60;
@@ -222,20 +266,16 @@ onMounted(() => {
         cyclesCompleted.value = saved.cyclesCompleted || 0;
 
         if (saved.isActive && saved.endTime) {
-            // Timer was running — resume from endTime
             const remaining = Math.max(0, Math.ceil((saved.endTime - Date.now()) / 1000));
             if (remaining > 0) {
                 timeLeft.value = remaining;
                 startTimer();
             } else {
-                // Timer expired while away
                 handlePhaseComplete();
             }
         } else if (saved.timeLeft > 0) {
-            // Timer was paused — resume from saved timeLeft
             timeLeft.value = saved.timeLeft;
         } else {
-            // No timer state — set default time
             timeLeft.value = workTime.value;
         }
     }
@@ -381,6 +421,13 @@ const badgeClass = computed(() => {
                 </button>
             </div>
 
+            <!-- Stop Session -->
+            <div class="mt-4 pt-4 border-t border-gray-100">
+                <button @click="stopSession" class="w-full py-2 text-sm font-semibold text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-btn transition">
+                    Hentikan Sesi
+                </button>
+            </div>
+
             <!-- Mark Complete -->
             <div v-if="activeTask" class="pt-5 border-t border-gray-100 mt-6">
                 <button
@@ -460,6 +507,51 @@ const badgeClass = computed(() => {
                             <button @click="dismissPhaseAlert" class="btn-ghost btn-sm">Nanti Saja</button>
                             <button @click="handleStartBreak" class="btn-primary btn-sm">
                                 {{ isBreak ? 'Mulai Istirahat' : 'Mulai Fokus' }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+    </Teleport>
+
+    <!-- Timer Switch Confirmation Modal -->
+    <Teleport to="body">
+        <Transition
+            enter-active-class="duration-200 ease-out"
+            enter-from-class="opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="duration-150 ease-in"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0"
+        >
+            <div v-if="showTimerSwitchConfirm" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div class="absolute inset-0 bg-gray-900/30 backdrop-blur-sm"></div>
+                <div class="relative bg-surface rounded-card shadow-elevated border border-border w-full max-w-sm animate-slide-up">
+                    <div class="p-5">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-[15px] font-bold text-gray-900">Timer Masih Aktif</h3>
+                                <p class="text-[13px] text-gray-500">
+                                    Timer untuk "{{ timerSwitchInfo.taskTitle }}" masih berjalan.
+                                    Apa yang ingin kamu lakukan?
+                                </p>
+                            </div>
+                        </div>
+                        <div class="space-y-2 pt-3 border-t border-gray-100">
+                            <button @click="handleTransferTime" class="w-full btn btn-primary btn-sm">
+                                Pindahkan Sisa Waktu
+                            </button>
+                            <button @click="handleStartFresh" class="w-full btn btn-outline btn-sm">
+                                Mulai Ulang
+                            </button>
+                            <button @click="handleTimerCancel" class="w-full btn btn-ghost btn-sm text-gray-500">
+                                Tidak, Lihat Saja
                             </button>
                         </div>
                     </div>
